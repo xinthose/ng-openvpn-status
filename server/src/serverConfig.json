@@ -1,6 +1,5 @@
 {
   "production": true,
-  "localhostTesting": false,
   "debug": true,
   "advDebug": false,
   "port": 443,
@@ -12,6 +11,21 @@
     "prod": {
       "key": "",
       "cert": ""
+    }
+  },
+  "jsonWebToken": {
+    "secret": "1e7e04effddaca7c11e522159bcf1c97fdb29a60b3dda98799de08185d7ad80e3e8a2c1cb74ca5ef6df3296749ca948d270305d3a1b73e14989c91fffaeb1df6",
+    "expireMinutes": ""
+  },
+  "logging": {
+    "dev": {
+      "filename": "log/ng-openvpn-status-server-test.log"
+    },
+    "prod": {
+      "filename": "/var/www/html/logs/ng-openvpn-status-server.log",
+      "maxSize": 2621000,
+      "maxFiles": 10,
+      "zippedArchive": true
     }
   }
 }

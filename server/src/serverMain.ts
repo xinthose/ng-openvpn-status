@@ -1,5 +1,5 @@
 // classes
-import { Openvpn } from './openvpn';
+import { Openvpn } from "./openvpn";
 
 // config
 import config from "./serverConfig.json";
@@ -13,10 +13,9 @@ import { ClientRequest } from "http";
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
-import https from 'https';
+import https from "https";
 import compression from "compression";
-import { Loggly, LogglyOptions } from "winston-loggly-bulk";
-import winston from 'winston';
+import winston, { LoggerOptions, level } from "winston";
 import fs from "fs";
 
 export class OpenvpnServer {
@@ -35,13 +34,13 @@ export class OpenvpnServer {
         maxAge: "1y",
         redirect: true,
     };
-    private logOptions: LogglyOptions = {
-        token: config.production ? config.loggly.prod.customerToken : config.loggly.dev.customerToken,
+    private loggerOptions: LoggerOptions = {
         level: config.debug ? WinstonLogLevelsEnum.DEBUG : WinstonLogLevelsEnum.ERROR,
-        subdomain: "portapay.com",
-        tags: ["Winston-NodeJS"],
-        json: true,
-    };
+        format: winston.format.json(),
+        transports: [
+            new winston.transports.File({ filename: "combined.log" }),
+        ],
+    }
     private logger: winston.Logger;
     private sslKey!: Buffer;
     private sslCert!: Buffer;
@@ -52,14 +51,9 @@ export class OpenvpnServer {
 
     constructor() {
         // initialize
-        this.logger = winston.add(new Loggly(this.logOptions));
-        if (config.production) {
-            this.appKey = config.kinvey.prod.appKey;
-        } else {
-            this.appKey = config.kinvey.dev.appKey;
-            this.sslKey = fs.readFileSync(config.ssl.dev.key);
-            this.sslCert = fs.readFileSync(config.ssl.dev.cert);
-        }
+        this.logger = winston.createLogger(this.loggerOptions);
+        this.sslKey = fs.readFileSync(config.ssl.dev.key);
+        this.sslCert = fs.readFileSync(config.ssl.dev.cert);
         this.axios = axios.create();
 
         // setup server
