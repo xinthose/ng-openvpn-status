@@ -1,0 +1,27 @@
+/*****************  *****************/
+/* #region */
+/* #endregion */
+
+/******************** Fonts ********************/
+/* #region */
+
+@font-face {
+  font-family: "Roboto-Regular";
+  src: url("assets/Roboto-Regular.ttf") format("truetype");
+}
+
+/* #endregion */
+/******************** General ********************/
+/* #region */
+
+body {
+  font-family: "Roboto-Regular", sans-serif;
+  color: #445464;
+  background-color: #d8cbcb28;
+}
+
+.notification {
+  font-size: 16pt;
+}
+
+/* #endregion */

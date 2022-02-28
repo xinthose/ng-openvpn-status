@@ -1,0 +1,75 @@
+// interfaces
+
+// config
+import config from "./serverConfig.json";
+
+// axios
+import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
+import { ClientRequest } from "http";
+
+// libraries
+import express, { Router, Request, Response } from "express";
+import winston from 'winston';
+
+export class Openvpn {
+    private debug: boolean;
+    private logger: winston.Logger;
+    public router: Router = express.Router();
+    private axios: AxiosInstance;
+
+    constructor(debug: boolean, logger: winston.Logger, axios: AxiosInstance) {
+        // set data
+        this.debug = debug;
+        this.logger = logger;
+        this.axios = axios;
+
+        this.router.post('/check_recaptcha', [this.check_recaptcha.bind(this)]);
+        this.router.get('/health_check', [this.health_check.bind(this)]);
+    }
+
+    private async check_recaptcha(req: Request, res: Response) {
+        try {
+            if (this.debug) {
+                this.logger.debug("Openvpn.check_recaptcha >> req.body = " + JSON.stringify(req.body));
+            }
+
+            // return response data
+            res.status(200);
+        } catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                const errStr = this.getAxiosError(error);
+                this.logger.error("Openvpn.check_recaptcha >> error = " + errStr);
+                res.status(500).send(errStr);
+            } else {
+                this.logger.error("Openvpn.check_recaptcha >> error = " + error);
+                res.status(500).send(error);
+            }
+        }
+    }
+
+    private async health_check(req: Request, res: Response) {   // used by AWS Route 53 Health Check
+        res.sendStatus(200);
+    }
+
+    // other
+
+    private getAxiosError(error: AxiosError): string {
+        // Documentation <https://github.com/axios/axios#handling-errors>
+        let errStr: string = "";
+        if (error.response) {
+            // The request was made and the server responded with a status code that falls out of the range of 2xx
+            errStr = `axios >> data = ${JSON.stringify(error.response.data)}; status = ${error.response.status}; headers = ${JSON.stringify(error.response.headers)}`;
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js
+            const err: ClientRequest = error.request;
+            errStr = `axios >> request = ${JSON.stringify(err)}`;
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            errStr = `axios >> message = ${error.message}`;
+        }
+
+        return errStr;
+    }
+
+}

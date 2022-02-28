@@ -1,0 +1,94 @@
+import { Component, OnInit, ElementRef, HostListener, ViewChild, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Router } from "@angular/router";
+import { FormGroup, FormBuilder, Validators } from "@angular/forms";
+
+// Services
+import { AuthService } from "../server.service";
+
+// Progress
+import { NotificationService } from "@progress/kendo-angular-notification";
+
+// rxjs
+import { Subscription } from "rxjs";
+
+// Other
+import { NGXLogger } from 'ngx-logger';
+import { environment } from '../../environments/environment';
+import config from "../../assets/config.json";
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+})
+export class LoginComponent implements OnInit, OnDestroy {
+  private debug: boolean = config.debug;
+  private logID: string = "LoginComponent.";
+  public loading: boolean = false;
+  public loginFailed: boolean = false;
+  // html children
+  @ViewChild("submitButton", { static: false }) public submitButton!: ElementRef;
+  @ViewChild("popup", { read: ElementRef, static: false }) public popup!: ElementRef;
+  // forms
+  public LoginForm: FormGroup;
+  // subscriptions
+  homeSelected$!: Subscription;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    // private socketService: SocketService,
+    private logger: NGXLogger,
+    private formBuilder: FormBuilder,
+    private notificationService: NotificationService,
+  ) {
+    this.LoginForm = this.formBuilder.group({
+      Username: ["", Validators.required],
+      Password: ["", Validators.required],
+    });
+  }
+
+  ngOnInit(): void {
+  }
+
+  // login
+
+  async onSubmit(e: any) {
+    try {
+      if (this.debug) {
+        this.logger.debug(`${this.logID}onSubmit >> e.value = ${JSON.stringify(e.value)}`);
+      }
+
+      this.loading = true;
+
+      this.loading = false;
+    } catch (error: any) {
+      this.logger.error(`${this.logID}onSubmit >> error = ${error}`);
+      this.notificationService.show({
+        content: error,
+        cssClass: "customNotification",
+        position: { horizontal: "center", vertical: "top" },
+        type: { style: "error", icon: false },  // none, success, error, warning, info
+        hideAfter: 5000,  // milliseconds
+        animation: {
+          type: "slide",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+      this.loading = false;
+    }
+  }
+
+  public loginFailedOpen() {
+    // automatically close popup
+    setTimeout(() => {
+      this.loginFailed = false;
+    }, 2000);
+  }
+
+  ngOnDestroy() {
+    if (this.debug) {
+      this.logger.debug(`${this.logID}ngOnDestroy >> view destroyed`);
+    }
+  }
+}

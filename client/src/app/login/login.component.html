@@ -1,0 +1,61 @@
+<main class="text-center">
+  <div id="login-view">
+    <table class="mx-auto" style="height: 100vh;">
+      <tbody>
+        <tr>
+          <td class="align-middle">
+            <div class="card floatingCard">
+              <div class="card-header">
+                <h3>OpenVPN Status</h3>
+              </div>
+              <div class="card-body">
+                <div class="card-text">
+                  <form [formGroup]="LoginForm" (ngSubmit)="onSubmit(LoginForm)">
+                    <div class="container">
+                      <!-- Username -->
+                      <div class="row">
+                        <div class="col">
+                          <kendo-floatinglabel text="Username">
+                            <kendo-maskedtextbox formControlName="Username" name="Username" autocomplete="username">
+                            </kendo-maskedtextbox>
+                          </kendo-floatinglabel>
+                        </div>
+                      </div>
+                      <!-- Password -->
+                      <div class="row mt-1 justify-content-center">
+                        <div class="col">
+                          <kendo-floatinglabel text="Password">
+                            <kendo-maskedtextbox formControlName="Password" type="password" name="Password"
+                              autocomplete="current-password">
+                            </kendo-maskedtextbox>
+                          </kendo-floatinglabel>
+                        </div>
+                      </div>
+                      <!-- Submit -->
+                      <div class="row mt-4 justify-content-center">
+                        <div class="col">
+                          <button kendoButton [disabled]="loading" type="reset">Clear</button>
+                        </div>
+                        <div class="col">
+                          <button kendoButton [disabled]="!LoginForm.valid || loading" type="submit" [primary]="true"
+                            #submitButton>Submit</button>
+                          <kendo-loader type="converging-spinner" *ngIf="loading" class="ms-2"></kendo-loader>
+                          <kendo-popup [anchor]="{ nativeElement: submitButton }" *ngIf="loginFailed"
+                            (open)="loginFailedOpen();">
+                            <div id="kendo_popup">
+                              <h5 class="text-danger"><i class="fa fa-exclamation"></i> Login Failed</h5>
+                            </div>
+                          </kendo-popup>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>

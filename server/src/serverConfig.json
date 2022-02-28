@@ -1,0 +1,17 @@
+{
+  "production": true,
+  "localhostTesting": false,
+  "debug": true,
+  "advDebug": false,
+  "port": 443,
+  "ssl": {
+    "dev": {
+      "key": "C:/inetpub/wwwroot/portapay_node/ssl_dev/key.pem",
+      "cert": "C:/inetpub/wwwroot/portapay_node/ssl_dev/cert.pem"
+    },
+    "prod": {
+      "key": "",
+      "cert": ""
+    }
+  }
+}

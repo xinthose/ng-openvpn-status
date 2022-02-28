@@ -1,0 +1,19 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-3" *ngIf="isLoggedIn">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Kiosk Admin</a>
+    <button class="navbar-toggler" type="button" (click)="toggler.toggle()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" mdbCollapse #toggler="mdbCollapse">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="homeSelected" href="network">Network</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <router-outlet kendoRippleContainer></router-outlet>
+</div>
