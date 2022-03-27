@@ -1,5 +1,6 @@
 // classes
 import { Openvpn } from "./openvpn";
+import { Authentication } from "./auth";
 
 // config
 import config from "./serverConfig.json";
@@ -48,6 +49,7 @@ export class OpenvpnServer {
     private appKey: string = "";
     // classes
     private openvpn: Openvpn;
+    private auth: Authentication;
 
     constructor() {
         // initialize
@@ -65,9 +67,13 @@ export class OpenvpnServer {
 
         // create classes
         this.openvpn = new Openvpn(this.debug, this.logger, this.axios);
+        this.auth = new Authentication(this.debug, this.logger);
 
         // tell app to use routes, call check_auth for some, and 401 anything falling through
-        this.app.use("/openvpn", this.openvpn.router, function (req: Request, res: Response) {
+        this.app.use("/openvpn", this.check_auth.bind(this), this.openvpn.router, function (req: Request, res: Response) {
+            res.sendStatus(401);
+        });
+        this.app.use("/auth", this.auth.router, function (req: Request, res: Response) {
             res.sendStatus(401);
         });
 

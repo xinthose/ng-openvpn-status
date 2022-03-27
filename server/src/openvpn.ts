@@ -12,6 +12,7 @@ import express, { Router, Request, Response } from "express";
 import winston from 'winston';
 
 export class Openvpn {
+    private logId: string = "Openvpn.";
     private debug: boolean;
     private logger: winston.Logger;
     public router: Router = express.Router();
@@ -23,14 +24,14 @@ export class Openvpn {
         this.logger = logger;
         this.axios = axios;
 
-        this.router.post('/check_recaptcha', [this.check_recaptcha.bind(this)]);
+        this.router.post('/blank1', [this.blank1.bind(this)]);
         this.router.get('/health_check', [this.health_check.bind(this)]);
     }
 
-    private async check_recaptcha(req: Request, res: Response) {
+    private async blank1(req: Request, res: Response) {
         try {
             if (this.debug) {
-                this.logger.debug("Openvpn.check_recaptcha >> req.body = " + JSON.stringify(req.body));
+                this.logger.error(`${this.logId}blank1 >> req.body = ${JSON.stringify(req.body)}`);
             }
 
             // return response data
@@ -38,10 +39,10 @@ export class Openvpn {
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 const errStr = this.getAxiosError(error);
-                this.logger.error("Openvpn.check_recaptcha >> error = " + errStr);
+                this.logger.error(`${this.logId}blank1 >> error = ${error}`);
                 res.status(500).send(errStr);
             } else {
-                this.logger.error("Openvpn.check_recaptcha >> error = " + error);
+                this.logger.error(`${this.logId}blank1 >> error = ${error}`);
                 res.status(500).send(error);
             }
         }
