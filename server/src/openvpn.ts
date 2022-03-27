@@ -35,7 +35,7 @@ export class Openvpn {
             }
 
             // return response data
-            res.status(200);
+            res.sendStatus(200);
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 const errStr = this.getAxiosError(error);

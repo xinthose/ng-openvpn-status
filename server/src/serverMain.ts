@@ -40,7 +40,13 @@ export class OpenvpnServer {
         level: config.debug ? WinstonLogLevelsEnum.DEBUG : WinstonLogLevelsEnum.ERROR,
         format: winston.format.json(),
         transports: [
-            new winston.transports.File({ filename: "combined.log" }),
+            new winston.transports.File({
+                "filename": config.production ? config.logging.prod.filename : config.logging.dev.filename,
+                "maxsize": config.production ? config.logging.prod.maxSize : config.logging.dev.maxSize,
+                "maxFiles": config.production ? config.logging.prod.maxFiles : config.logging.dev.maxFiles,
+                "zippedArchive": config.production ? config.logging.prod.zippedArchive : config.logging.dev.zippedArchive,
+                "options": config.production ? {} : { flags: "w" }, // overwrite log file for testing
+            }),
         ],
     }
     private logger: winston.Logger;
@@ -61,6 +67,7 @@ export class OpenvpnServer {
 
         // setup server
         this.app = express();
+        this.app.use(express.json()); // needed for POST requests with JSON in the body
         this.app.use(express.urlencoded({ extended: true }));   // needed for POST requests
         this.app.use(compression());    // decrease data usage <http://expressjs.com/en/resources/middleware/compression.html>
         this.app.use(express.static(this.appFolder, this.appOptions));  // serve website files

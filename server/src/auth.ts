@@ -49,8 +49,8 @@ export class Authentication {
             }
 
             // generate access token
-            const token: string = sign(data.username, config.jsonWebToken.secret, {
-                expiresIn: config.jsonWebToken.expireMinutes
+            const token: string = sign({ "username": data.username }, config.jsonWebToken.secret, {
+                "expiresIn": config.jsonWebToken.expire
             });
 
             // return response data
