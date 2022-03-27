@@ -25,7 +25,6 @@ export class Openvpn {
         this.axios = axios;
 
         this.router.post('/blank1', [this.blank1.bind(this)]);
-        this.router.get('/health_check', [this.health_check.bind(this)]);
     }
 
     private async blank1(req: Request, res: Response) {
@@ -46,10 +45,6 @@ export class Openvpn {
                 res.status(500).send(error);
             }
         }
-    }
-
-    private async health_check(req: Request, res: Response) {   // used by AWS Route 53 Health Check
-        res.sendStatus(200);
     }
 
     // other
