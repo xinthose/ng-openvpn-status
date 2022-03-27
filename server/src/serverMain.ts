@@ -18,6 +18,7 @@ import https from "https";
 import compression from "compression";
 import winston, { LoggerOptions, level } from "winston";
 import fs from "fs";
+import { verify } from "jsonwebtoken";
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer.";
@@ -69,8 +70,8 @@ export class OpenvpnServer {
         this.openvpn = new Openvpn(this.debug, this.logger, this.axios);
         this.auth = new Authentication(this.debug, this.logger);
 
-        // tell app to use routes, call check_auth for some, and 401 anything falling through
-        this.app.use("/openvpn", this.check_auth.bind(this), this.openvpn.router, function (req: Request, res: Response) {
+        // tell app to use routes, call checkAuth for some, and 401 anything falling through
+        this.app.use("/openvpn", this.checkAuth.bind(this), this.openvpn.router, function (req: Request, res: Response) {
             res.sendStatus(401);
         });
         this.app.use("/auth", this.auth.router, function (req: Request, res: Response) {
@@ -92,60 +93,39 @@ export class OpenvpnServer {
         this.logger.info(`${this.logID}constructor >> app initialized`);
     }
 
-    private async check_auth(req: Request, res: Response, next: NextFunction) {
+    private async checkAuth(req: Request, res: Response, next: NextFunction) {
         let from: string = "";
         try {
-            // get data
-            const auth: string = req.headers.authorization ?? "";
-            from = req.headers.from ?? "";
-            if (this.debug) {
-                this.logger.debug(`${this.logID}check_auth >> auth = ${auth}; from = ${from}`);
-            }
-
-            // make GET request
-            const URL: string = `https://ghffhg/user/${this.appKey}/${from}?fields=_id`;
-            const axiosRequestConfig: AxiosRequestConfig = {
-                "headers": {
-                    "Authorization": auth,
+            // get data (Authorization: Bearer JWT_ACCESS_TOKEN)
+            let token: string = "";
+            const authHeader: string = req.headers.authorization ?? "";
+            if (authHeader) {
+                const authHeaderArr: Array<string> = authHeader.split(" ");
+                if (authHeaderArr.length) {
+                    if (authHeaderArr.length > 1) {
+                        token = authHeaderArr[1];
+                    }
                 }
-            };
-            const response: AxiosResponse = await this.axios.get(URL, axiosRequestConfig);
+            }
             if (this.debug) {
-                this.logger.debug(`${this.logID}check_auth >> response.data = ${JSON.stringify(response.data)}`);
+                this.logger.debug(`${this.logID}checkAuth >> token = ${token}`);
             }
 
-            // return
-            return next();
+            // verify JSON web token
+            verify(token, config.jsonWebToken.secret, (error: any, user: any) => {
+                if (error) {
+                    this.logger.error(`${this.logID}checkAuth >> error = ${error}`);
+                    res.sendStatus(403);
+                    return next("router");
+                } else {
+                    return next();
+                }
+            });
         } catch (error: any) {
-            if (axios.isAxiosError(error)) {
-                const errStr = this.getAxiosError(error);
-                this.logger.error(`${this.logID}check_auth >> error = ${errStr}; from = ${from}`);
-                res.sendStatus(401);
-            } else {
-                this.logger.error(`${this.logID}check_auth >> error = ${error}`);
-                res.sendStatus(401);
-            }
+            this.logger.error(`${this.logID}checkAuth >> error = ${error}`);
+            res.sendStatus(401);
             return next("router");
         }
-    }
-
-    private getAxiosError(error: AxiosError): string {
-        // Documentation <https://github.com/axios/axios#handling-errors>
-        let errStr: string = "";
-        if (error.response) {
-            // The request was made and the server responded with a status code that falls out of the range of 2xx
-            errStr = `axios >> data = ${JSON.stringify(error.response.data)}; status = ${error.response.status}; headers = ${JSON.stringify(error.response.headers)}`;
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js
-            const err: ClientRequest = error.request;
-            errStr = `axios >> request = ${JSON.stringify(err)}`;
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            errStr = `axios >> message = ${error.message}`;
-        }
-
-        return errStr;
     }
 
     public getApp(): express.Application {
