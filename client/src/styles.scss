@@ -20,8 +20,16 @@ body {
   background-color: #d8cbcb28;
 }
 
-.notification {
+.customNotification {
   font-size: 16pt;
+}
+
+.k-notification-group {
+  z-index: 9999 !important;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 /* #endregion */

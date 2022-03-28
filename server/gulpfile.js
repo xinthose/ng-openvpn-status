@@ -7,8 +7,6 @@ var gulp = require("gulp"),
 var tsProject = ts.createProject("tsconfig.json");
 var filesToMove = [
   "./src/serverConfig.json",
-  "./src/ssl_dev/cert.pem",
-  "./src/ssl_dev/key.pem",
 ];
 
 // Tasks

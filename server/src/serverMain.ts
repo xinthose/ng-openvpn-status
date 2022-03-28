@@ -15,7 +15,7 @@ import { ClientRequest } from "http";
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
-import https from "https";
+import http from "http";
 import compression from "compression";
 import winston, { LoggerOptions, level } from "winston";
 import fs from "fs";
@@ -26,7 +26,7 @@ export class OpenvpnServer {
     private debug: boolean = config.debug;
     private advDebug: boolean = config.advDebug;
     private app: express.Application;
-    private server!: https.Server;
+    private server!: http.Server;
     private port: any = process.env.PORT || config.port;    // default port is 8080; POST requests to HTTPS automatically get routed to this port by the AWS load balancer
     private appFolder: string = "./";
     private appOptions: any = {
@@ -51,8 +51,6 @@ export class OpenvpnServer {
         ],
     }
     private logger: winston.Logger;
-    private sslKey!: Buffer;
-    private sslCert!: Buffer;
     private axios: AxiosInstance;
     private appKey: string = "";
     // classes
@@ -63,8 +61,6 @@ export class OpenvpnServer {
     constructor() {
         // initialize
         this.logger = winston.createLogger(this.loggerOptions);
-        this.sslKey = fs.readFileSync(config.ssl.dev.key);
-        this.sslCert = fs.readFileSync(config.ssl.dev.cert);
         this.axios = axios.create();
 
         // setup server
@@ -97,7 +93,7 @@ export class OpenvpnServer {
         });
 
         // start listening (call last)
-        this.server = https.createServer({ key: this.sslKey, cert: this.sslCert }, this.app);
+        this.server = http.createServer(this.app);
         this.server.listen(this.port, () => {
             this.logger.info(`${this.logID}constructor >> server listening on port ${this.port}`);
         });

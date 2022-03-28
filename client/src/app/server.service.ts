@@ -98,11 +98,14 @@ export class AuthService {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Authorization": `Bearer ${this.authToken}`,
-      })
+      }),
     };
 
     // build URL
-    const url: string = `${window.location.hostname}/auth/${route}`;
+    const url: string = `https://${window.location.hostname}/auth/${route}`;
+    if (this.debug) {
+      this.logger.debug(`${this.logID}post >> url = ${url}`);
+    }
 
     // make request
     return firstValueFrom(this.http.post(url, body, httpOptions));

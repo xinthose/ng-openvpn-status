@@ -61,6 +61,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
 
       const response = await this.authService.login(e.value["Username"], e.value["Password"])
+      if (this.debug) {
+        this.logger.debug(`${this.logID}onSubmit >> response = ${JSON.stringify(response)}`);
+      }
 
       this.loading = true;
 
