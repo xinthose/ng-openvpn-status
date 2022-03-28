@@ -60,12 +60,29 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.logger.debug(`${this.logID}onSubmit >> e.value = ${JSON.stringify(e.value)}`);
       }
 
+      this.loading = true;
+
+      // login
       const response = await this.authService.login(e.value["Username"], e.value["Password"])
       if (this.debug) {
         this.logger.debug(`${this.logID}onSubmit >> response = ${JSON.stringify(response)}`);
       }
 
-      this.loading = true;
+      // show popup
+      this.notificationService.show({
+        content: "Welcome.",
+        cssClass: "customNotification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "success", icon: false },  // none, success, error, warning, info
+        hideAfter: 3000,
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+
+      // navigate
+      this.router.navigate(["home"]);
 
       this.loading = false;
     } catch (error: any) {
