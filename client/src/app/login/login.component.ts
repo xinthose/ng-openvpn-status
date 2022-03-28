@@ -59,22 +59,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.logger.debug(`${this.logID}onSubmit >> e.value = ${JSON.stringify(e.value)}`);
       }
 
+      const response = await this.authService.login(e.value["Username"], e.value["Password"])
+
       this.loading = true;
 
       this.loading = false;
     } catch (error: any) {
       this.logger.error(`${this.logID}onSubmit >> error = ${error}`);
-      this.notificationService.show({
-        content: error,
-        cssClass: "customNotification",
-        position: { horizontal: "center", vertical: "top" },
-        type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 5000,  // milliseconds
-        animation: {
-          type: "slide",
-          duration: 150, // milliseconds (notif)
-        },
-      });
       this.loading = false;
     }
   }

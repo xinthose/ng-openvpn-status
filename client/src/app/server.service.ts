@@ -14,7 +14,6 @@ import { NGXLogger } from 'ngx-logger';
 import { DateTime } from "luxon";
 import config from "../assets/config.json";
 import { IInactivityConfig, InactivityCountdownTimer } from 'inactivity-countdown-timer';
-export let SERVER: string = window.location.hostname;
 
 /* #region */
 /* #endregion */
@@ -49,6 +48,7 @@ export class ServerService {
 export class AuthService {
   private logID: string = "AuthService.";
   private debug: boolean = config.debug;
+  private authToken: string = "";
   public isLoggedIn: boolean = false;
   inactivityTimer: any;
   // events
@@ -60,7 +60,7 @@ export class AuthService {
     private router: Router,
     private logger: NGXLogger,
     private notificationService: NotificationService,
-
+    private http: HttpClient,
   ) {
     const settings: IInactivityConfig = {
       idleTimeoutTime: config.inactivityLogoutTime,
@@ -91,13 +91,38 @@ export class AuthService {
     this.inactivityTimer = new InactivityCountdownTimer(settings);
   }
 
-  /***************************************************** Kinvey User *****************************************************/
+  private async post(route: string, body: Object): Promise<any> {
+    // create headers
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Authorization": `Bearer ${this.authToken}`,
+      })
+    };
+
+    // build URL
+    const url: string = `${window.location.hostname}/auth/${route}`;
+
+    // make request
+    return firstValueFrom(this.http.post(url, body, httpOptions));
+  }
 
   public async login(username: string, password: string): Promise<any> {
     try {
+      if (this.debug) {
+        this.logger.debug(`${this.logID}login >> username = ${username}; password = ${password}`);
+      }
+
+      const body = {
+        "username": username,
+        "password": password,
+      };
+      return this.post("login", body);
+
     } catch (error: any) {
       const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
-      this.logger.error("AuthService.loginWithActiveUser error >> error.message = " + msg);
+      this.logger.error("AuthService.login error >> error.message = " + msg);
       throw new Error(msg);
     }
   }

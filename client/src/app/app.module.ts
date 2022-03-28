@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 // General
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // Progress
 import { InputsModule } from '@progress/kendo-angular-inputs';
@@ -44,6 +45,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     // General
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     BrowserAnimationsModule,
     LoggerModule.forRoot({
       serverLoggingUrl: "",
@@ -67,7 +69,13 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     // other
     FontAwesomeModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

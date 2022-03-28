@@ -136,7 +136,9 @@ export class OpenvpnServer {
             });
         } catch (error: any) {
             this.logger.error(`${this.logID}checkAuth >> error = ${error}`);
-            res.sendStatus(401);
+            res.status(401).json({
+                "message": error,
+            });
             return next("router");
         }
     }
