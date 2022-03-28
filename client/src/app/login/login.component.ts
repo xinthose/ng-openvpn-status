@@ -26,6 +26,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private logID: string = "LoginComponent.";
   public loading: boolean = false;
   public loginFailed: boolean = false;
+  public title: string = config.loginTitle;
   // html children
   @ViewChild("submitButton", { static: false }) public submitButton!: ElementRef;
   @ViewChild("popup", { read: ElementRef, static: false }) public popup!: ElementRef;

@@ -6,6 +6,12 @@
 
 ## Configuration Notes
 
+### `client/src/assets/config.json`
+
+- `inactivityLogoutTime`: time in milliseconds you want an inactive user to be logged out after
+- `appTitle`: title of the app as seen in the browser tab
+- `loginTitle`: text shown above the username/password fields on the login page
+
 ### `server/src/serverConfig.json`
 
 - users

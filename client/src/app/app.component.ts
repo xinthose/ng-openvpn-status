@@ -1,4 +1,5 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Title } from "@angular/platform-browser";
 
 // services
 import { AuthService } from "./server.service";
@@ -10,6 +11,7 @@ import { Subscription } from "rxjs";
 // other
 import { NGXLogger } from 'ngx-logger';
 import { environment } from "../environments/environment";
+import config from "../assets/config.json";
 
 @Component({
   selector: 'app-root',
@@ -28,7 +30,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     private authService: AuthService,
     private notificationService: NotificationService,
     private logger: NGXLogger,
+    private titleService: Title,
   ) {
+    this.titleService.setTitle(config.appTitle);
   }
 
   ngAfterViewInit() {
