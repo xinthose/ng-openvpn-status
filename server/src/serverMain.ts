@@ -20,6 +20,7 @@ import compression from "compression";
 import winston, { LoggerOptions, level } from "winston";
 import fs from "fs";
 import { verify } from "jsonwebtoken";
+import cors from "cors";
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer.";
@@ -65,6 +66,7 @@ export class OpenvpnServer {
 
         // setup server
         this.app = express();
+        this.app.use(cors); // cross origin resource sharing
         this.app.use(express.json()); // needed for POST requests with JSON in the body
         this.app.use(express.urlencoded({ extended: true }));   // needed for POST requests
         this.app.use(compression());    // decrease data usage <http://expressjs.com/en/resources/middleware/compression.html>

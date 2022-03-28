@@ -102,7 +102,7 @@ export class AuthService {
     };
 
     // build URL
-    const url: string = `https://${window.location.hostname}/auth/${route}`;
+    const url: string = `http://${window.location.hostname}:8090/auth/${route}`;
     if (this.debug) {
       this.logger.debug(`${this.logID}post >> url = ${url}`);
     }

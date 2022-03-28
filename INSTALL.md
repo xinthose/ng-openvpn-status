@@ -23,7 +23,7 @@
 ## Server Installation
 
 - `npm init`
-- `npm i typescript express @types/express compression @types/compression ts-node gulp gulp-cli gulp-typescript del axios @types/axios winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken`
+- `npm i typescript express @types/express compression @types/compression ts-node gulp gulp-cli gulp-typescript del axios @types/axios winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken cors @types/cors`
 
 ## Create App (client directory)
 
