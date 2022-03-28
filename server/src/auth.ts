@@ -44,7 +44,9 @@ export class Authentication {
 
             // handle match found
             if (!matchFound) {
-                res.sendStatus(401);
+                res.status(401).json({
+                    "message": "Incorrect login."
+                });
                 return;
             }
 
