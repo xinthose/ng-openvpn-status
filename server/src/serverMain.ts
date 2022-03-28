@@ -15,9 +15,8 @@ import { ClientRequest } from "http";
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
-import http from "http";
 import compression from "compression";
-import winston, { LoggerOptions, level } from "winston";
+import winston, { LoggerOptions, level, format } from "winston";
 import fs from "fs";
 import { verify } from "jsonwebtoken";
 import cors from "cors";
@@ -27,7 +26,6 @@ export class OpenvpnServer {
     private debug: boolean = config.debug;
     private advDebug: boolean = config.advDebug;
     private app: express.Application;
-    private server!: http.Server;
     private port: any = process.env.PORT || config.port;    // default port is 8080; POST requests to HTTPS automatically get routed to this port by the AWS load balancer
     private appFolder: string = "./";
     private appOptions: any = {
@@ -40,7 +38,10 @@ export class OpenvpnServer {
     };
     private loggerOptions: LoggerOptions = {
         level: config.debug ? WinstonLogLevelsEnum.DEBUG : WinstonLogLevelsEnum.ERROR,
-        format: winston.format.json(),
+        format: format.combine(
+            format.timestamp(),
+            format.json(),
+        ),
         transports: [
             new winston.transports.File({
                 "filename": config.production ? config.logging.prod.filename : config.logging.dev.filename,
@@ -53,7 +54,6 @@ export class OpenvpnServer {
     }
     private logger: winston.Logger;
     private axios: AxiosInstance;
-    private appKey: string = "";
     // classes
     private openvpn: Openvpn;
     private auth: Authentication;
@@ -66,7 +66,7 @@ export class OpenvpnServer {
 
         // setup server
         this.app = express();
-        this.app.use(cors); // cross origin resource sharing
+        this.app.use(cors()); // cross origin resource sharing
         this.app.use(express.json()); // needed for POST requests with JSON in the body
         this.app.use(express.urlencoded({ extended: true }));   // needed for POST requests
         this.app.use(compression());    // decrease data usage <http://expressjs.com/en/resources/middleware/compression.html>
@@ -95,8 +95,7 @@ export class OpenvpnServer {
         });
 
         // start listening (call last)
-        this.server = http.createServer(this.app);
-        this.server.listen(this.port, () => {
+        this.app.listen(this.port, () => {
             this.logger.info(`${this.logID}constructor >> server listening on port ${this.port}`);
         });
 
