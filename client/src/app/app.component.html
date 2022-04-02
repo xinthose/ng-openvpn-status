@@ -1,18 +1,45 @@
+<!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3" *ngIf="isLoggedIn">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Kiosk Admin</a>
+    <a class="navbar-brand" routerLink="home">{{ appTitle }}</a>
     <button class="navbar-toggler" type="button" (click)="toggler.toggle()">
       <i class="fas fa-bars"></i>
     </button>
     <div class="collapse navbar-collapse" mdbCollapse #toggler="mdbCollapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" [class.active]="homeSelected" href="network">Network</a>
+          <a class="nav-link" [class.active]="homeSelected" routerLink="logs">Logs</a>
+        </li>
+      </ul>
+      <!-- Right Links -->
+      <ul class="navbar-nav ms-auto me-2 mb-2 mb-lg-0">
+        <!-- Display Name -->
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="true">
+            <fa-icon [icon]="faUser" class="me-1"></fa-icon>
+            {{ username }}
+          </a>
+        </li>
+        <!-- Logout -->
+        <li class="nav-item">
+          <a class="nav-link pointer" (click)="logoutButtonClicked();" [class.active]="true">
+            <fa-icon [icon]="faSignOutAlt" class="me-1"></fa-icon>
+            Logout
+          </a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
+
+<!-- Logout Dialog -->
+<kendo-dialog title="Please confirm" *ngIf="confirmLogout" (close)="closeLogout('cancel')">
+  <p id="dialog">Are you sure you want to logout?</p>
+  <kendo-dialog-actions>
+    <button kendoButton [look]="'outline'" (click)="closeLogout('no')">No</button>
+    <button kendoButton [look]="'outline'" (click)="closeLogout('yes')" themeColor="primary">Yes</button>
+  </kendo-dialog-actions>
+</kendo-dialog>
 
 <div class="container-fluid">
   <router-outlet kendoRippleContainer></router-outlet>

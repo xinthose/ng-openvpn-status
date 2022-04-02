@@ -33,6 +33,8 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
+
 
 @NgModule({
   declarations: [
@@ -68,6 +70,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     MdbCollapseModule,
     // other
     FontAwesomeModule,
+    DialogsModule,
   ],
   providers: [
     {

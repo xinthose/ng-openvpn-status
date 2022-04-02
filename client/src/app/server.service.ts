@@ -1,5 +1,6 @@
 import { Injectable, Output, EventEmitter, NgZone, Directive } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Router } from "@angular/router";
 
 // Progress
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -63,6 +64,7 @@ export class AuthService {
     private logger: NGXLogger,
     private notificationService: NotificationService,
     private http: HttpClient,
+    private router: Router,
   ) {
     const settings: IInactivityConfig = {
       idleTimeoutTime: config.inactivityLogoutTime,
@@ -133,6 +135,33 @@ export class AuthService {
 
   public async logout(): Promise<any> {
     try {
+      // log logout
+      this.logger.info(`${this.logID}logout >> user logged out >> username = ${this.username}`);
+
+      // reset
+      this.isLoggedIn = false;
+
+      // emit changes
+      this.isLoggedInEvent.emit(false);
+
+      // show popup
+      this.notificationService.show({
+        content: "You have been logged out.",
+        cssClass: "customNotification",
+        position: { horizontal: "center", vertical: "top" },
+        type: { style: "success", icon: false },  // none, success, error, warning, info
+        hideAfter: 3000,  // milliseconds
+        animation: {
+          type: "slide",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+
+      // stop inactivity timer
+      this.inactivityTimer.stop();
+
+      // navigate
+      this.router.navigate(["login"]);
     } catch (error: any) {
       const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
       this.logger.error("AuthService.logout error >> error.message = " + msg);

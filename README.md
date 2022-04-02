@@ -8,9 +8,9 @@
 
 ### `client/src/assets/config.json`
 
+- `autoLogin`: automatically login on the login page, using the default username/password of admin/admin
 - `inactivityLogoutTime`: time in milliseconds you want an inactive user to be logged out after
-- `appTitle`: title of the app as seen in the browser tab
-- `loginTitle`: text shown above the username/password fields on the login page
+- `appTitle`: title of the app as seen in the browser tab and navbar
 
 ### `server/src/serverConfig.json`
 
@@ -23,4 +23,4 @@
     - change directories to `utility` using the Node.js Command Prompt
     - `node genkey.js`
     - use this new value for this parameter
-  - `expireMinutes`: use any of the string formats used by `ms`: <https://github.com/vercel/ms>
+  - `expireMinutes`: use any of the string formats used by `ms`: <https://github.com/vercel/ms/blob/master/src/index.ts#L9>

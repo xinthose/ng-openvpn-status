@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private logID: string = "LoginComponent.";
   public loading: boolean = false;
   public loginFailed: boolean = false;
-  public title: string = config.loginTitle;
+  public appTitle: string = config.appTitle;
   // html children
   @ViewChild("submitButton", { static: false }) public submitButton!: ElementRef;
   @ViewChild("popup", { read: ElementRef, static: false }) public popup!: ElementRef;
@@ -92,7 +92,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         // set login success
         this.authService.username = e.value["Username"];
         this.authService.isLoggedIn = true;
+
+        // emit event
         this.authService.isLoggedInEvent.emit(true);
+
+        // start inactivity timer
+        this.authService.inactivityTimer.start();
 
         // show popup
         this.notificationService.show({
