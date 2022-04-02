@@ -50,6 +50,23 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // auto login
+    if (!environment.production) {
+      if (config.autoLogin) {
+        setTimeout(() => {
+          // set values
+          this.LoginForm.setValue({
+            Username: "admin",
+            Password: "admin",
+          });
+        }, 100);
+        setTimeout(() => {
+          // submit form
+          const submitButton: HTMLElement = this.submitButton.nativeElement as HTMLElement;
+          submitButton.click();
+        }, 200);
+      }
+    }
   }
 
   // login
@@ -67,6 +84,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (this.debug) {
         this.logger.debug(`${this.logID}onSubmit >> response = ${JSON.stringify(response)}`);
       }
+
+      // set login success
+      this.authService.isLoggedIn = true;
+      this.authService.isLoggedInEvent.emit(true);
 
       // show popup
       this.notificationService.show({
