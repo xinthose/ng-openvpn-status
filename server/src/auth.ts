@@ -43,22 +43,23 @@ export class Authentication {
             }
 
             // handle match found
-            if (!matchFound) {
-                res.status(401).json({
-                    "message": "Incorrect login."
+            if (matchFound) {
+                // generate access token
+                const token: string = sign({ "username": data.username }, config.jsonWebToken.secret, {
+                    "expiresIn": config.jsonWebToken.expire
                 });
-                return;
+
+                // return response data
+                res.status(200).json({
+                    "loginOK": true,
+                    "token": token,
+                });
+            } else {
+                res.status(200).json({
+                    "loginOK": false,
+                    "token": "",
+                });
             }
-
-            // generate access token
-            const token: string = sign({ "username": data.username }, config.jsonWebToken.secret, {
-                "expiresIn": config.jsonWebToken.expire
-            });
-
-            // return response data
-            res.status(200).json({
-                "token": token,
-            });
         } catch (error: any) {
             this.logger.error(`${this.logId}login >> error = ${error}`);
             res.status(500).send(error);

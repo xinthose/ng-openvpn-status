@@ -1,12 +1,14 @@
 import { Injectable, Output, EventEmitter, NgZone, Directive } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Router } from "@angular/router";
 
 // Progress
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 // rxjs
 import { firstValueFrom } from "rxjs";
+
+// interfaces
+import { LoginStatusIntf } from './interfaces/loginStatusIntf';
 
 // Other
 import { environment } from '../environments/environment';
@@ -50,6 +52,7 @@ export class AuthService {
   private debug: boolean = config.debug;
   private authToken: string = "";
   public isLoggedIn: boolean = false;
+  public username: string = "";
   inactivityTimer: any;
   // events
   @Output() isLoggedInEvent: EventEmitter<boolean> = new EventEmitter();
@@ -57,7 +60,6 @@ export class AuthService {
   @Output() homeSelectedEvent: EventEmitter<null> = new EventEmitter();
 
   constructor(
-    private router: Router,
     private logger: NGXLogger,
     private notificationService: NotificationService,
     private http: HttpClient,
@@ -111,7 +113,7 @@ export class AuthService {
     return firstValueFrom(this.http.post(url, body, httpOptions));
   }
 
-  public async login(username: string, password: string): Promise<any> {
+  public async login(username: string, password: string): Promise<LoginStatusIntf> {
     try {
       if (this.debug) {
         this.logger.debug(`${this.logID}login >> username = ${username}; password = ${password}`);
@@ -122,7 +124,6 @@ export class AuthService {
         "password": password,
       };
       return this.post("login", body);
-
     } catch (error: any) {
       const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
       this.logger.error("AuthService.login error >> error.message = " + msg);

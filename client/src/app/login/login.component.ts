@@ -11,6 +11,9 @@ import { NotificationService } from "@progress/kendo-angular-notification";
 // rxjs
 import { Subscription } from "rxjs";
 
+// interfaces
+import { LoginStatusIntf } from '../interfaces/loginStatusIntf';
+
 // Other
 import { NGXLogger } from 'ngx-logger';
 import { environment } from '../../environments/environment';
@@ -80,30 +83,36 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loading = true;
 
       // login
-      const response = await this.authService.login(e.value["Username"], e.value["Password"])
+      const response: LoginStatusIntf = await this.authService.login(e.value["Username"], e.value["Password"])
       if (this.debug) {
         this.logger.debug(`${this.logID}onSubmit >> response = ${JSON.stringify(response)}`);
       }
 
-      // set login success
-      this.authService.isLoggedIn = true;
-      this.authService.isLoggedInEvent.emit(true);
+      if (response.loginOK) {
+        // set login success
+        this.authService.username = e.value["Username"];
+        this.authService.isLoggedIn = true;
+        this.authService.isLoggedInEvent.emit(true);
 
-      // show popup
-      this.notificationService.show({
-        content: "Welcome.",
-        cssClass: "customNotification",
-        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
-        type: { style: "success", icon: false },  // none, success, error, warning, info
-        hideAfter: 3000,
-        animation: {
-          type: "fade",
-          duration: 150, // milliseconds (notif)
-        },
-      });
+        // show popup
+        this.notificationService.show({
+          content: "Welcome.",
+          cssClass: "customNotification",
+          position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+          type: { style: "success", icon: false },  // none, success, error, warning, info
+          hideAfter: 3000,
+          animation: {
+            type: "fade",
+            duration: 150, // milliseconds (notif)
+          },
+        });
 
-      // navigate
-      this.router.navigate(["home"]);
+        // navigate
+        this.router.navigate(["home"]);
+      } else {
+        this.loginFailed = true;
+      }
+
 
       this.loading = false;
     } catch (error: any) {

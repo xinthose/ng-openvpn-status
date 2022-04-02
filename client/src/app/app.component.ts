@@ -19,7 +19,10 @@ import config from "../assets/config.json";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
+  private debug: boolean = config.debug;
+  private logID: string = "AppComponent.";
   public isLoggedIn: boolean = false;
+  public userName: string = "";
   // navigation selected
   public homeSelected: boolean = false;
   // subscriptions
@@ -37,7 +40,19 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.isLoggedIn$ = this.authService.isLoggedInEvent.subscribe((isLoggedIn: boolean) => {
+      if (this.debug) {
+        this.logger.debug(`${this.logID}isLoggedInEvent >> isLoggedIn = ${isLoggedIn}`);
+      }
+
+      // set logged in status
       this.isLoggedIn = isLoggedIn;
+
+      // handle status
+      if (isLoggedIn) {
+        this.userName = this.authService.username;
+      } else {
+        this.userName = "";
+      }
     });
 
     this.homeSelected$ = this.authService.homeSelectedEvent.subscribe(() => {
