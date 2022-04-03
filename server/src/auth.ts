@@ -84,7 +84,7 @@ export class Authentication {
             await this.redisClient.connect();
 
             // push JSON web token into blacklist
-            await this.redisClient.LPUSH("token", data.token);
+            await this.redisClient.LPUSH("blackTokens", data.token);
 
             // return
             res.sendStatus(200);

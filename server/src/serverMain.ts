@@ -139,14 +139,22 @@ export class OpenvpnServer {
                 } else {
                     // connect to in memory database
                     this.redisClient.connect().then(() => {
-                        this.redisClient.lRange("token", 0, -1).then((blackTokens: Array<string>) => {
-                            if (this.debug) {
-                                this.logger.debug(`${this.logID}checkAuth >> black list of tokens = ${JSON.stringify(blackTokens)}`);
+                        // get all black listed tokens from logouts
+                        this.redisClient.lRange("blackTokens", 0, -1).then((blackTokens: Array<string>) => {
+                            if (this.advDebug) {
+                                this.logger.debug(`${this.logID}checkAuth >> blackTokens = ${JSON.stringify(blackTokens)}`);
+                            }
+
+                            // check if current token is in list
+                            if (blackTokens.indexOf(token) > -1) {
+                                this.logger.error(`${this.logID}checkAuth >> token found in black list`);
+                                res.sendStatus(403);
+                                return next("router");
+                            } else {
+                                return next();
                             }
                         })
                     })
-
-                    return next();
                 }
             });
         } catch (error: any) {
