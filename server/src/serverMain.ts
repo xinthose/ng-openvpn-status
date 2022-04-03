@@ -20,6 +20,7 @@ import winston, { LoggerOptions, level, format } from "winston";
 import fs from "fs";
 import { verify } from "jsonwebtoken";
 import cors from "cors";
+import { createClient, RedisClientType } from 'redis';
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer.";
@@ -54,6 +55,7 @@ export class OpenvpnServer {
     }
     private logger: winston.Logger;
     private axios: AxiosInstance;
+    private redisClient: RedisClientType;
     // classes
     private openvpn: Openvpn;
     private auth: Authentication;
@@ -73,9 +75,15 @@ export class OpenvpnServer {
         this.app.use(express.static(this.appFolder, this.appOptions));  // serve website files
         this.app.disable("x-powered-by");   // prevent attackers from finding out that this app uses express
 
+        // connect to in memory database
+        this.redisClient = createClient();
+        this.redisClient.on("error", (err: any) => {
+            this.logger.error(`${this.logID}redis >> error = ${err}`);
+        });
+
         // create classes
         this.openvpn = new Openvpn(this.debug, this.logger, this.axios);
-        this.auth = new Authentication(this.debug, this.logger);
+        this.auth = new Authentication(this.debug, this.logger, this.redisClient);
         this.utility = new Utility(this.debug, this.logger);
 
         // tell app to use routes, call checkAuth for some, and 401 anything falling through
@@ -98,6 +106,7 @@ export class OpenvpnServer {
         this.app.listen(this.port, () => {
             this.logger.info(`${this.logID}constructor >> server listening on port ${this.port}`);
         });
+
 
         // log
         this.logger.info(`${this.logID}constructor >> app initialized`);
@@ -128,6 +137,15 @@ export class OpenvpnServer {
                     res.sendStatus(403);
                     return next("router");
                 } else {
+                    // connect to in memory database
+                    this.redisClient.connect().then(() => {
+                        this.redisClient.lRange("token", 0, -1).then((blackTokens: Array<string>) => {
+                            if (this.debug) {
+                                this.logger.debug(`${this.logID}checkAuth >> black list of tokens = ${JSON.stringify(blackTokens)}`);
+                            }
+                        })
+                    })
+
                     return next();
                 }
             });
