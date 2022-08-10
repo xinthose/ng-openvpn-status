@@ -12,6 +12,7 @@
     "@types/compression": "^1.7.2",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
+    "@types/gulp": "^4.0.9",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/winston-loggly-bulk": "^3.0.3",
     "axios": "^0.27.2",

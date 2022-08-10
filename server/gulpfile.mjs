@@ -1,7 +1,7 @@
 // Import
-var gulp = require("gulp"),
-  del = require("del"),
-  ts = require("gulp-typescript");
+import gulp from 'gulp';
+import { deleteAsync } from 'del';
+import ts from "gulp-typescript";
 
 // config
 var tsProject = ts.createProject("tsconfig.json");
@@ -11,7 +11,7 @@ var filesToMove = [
 
 // Tasks
 gulp.task("clean-build", function () {
-  return del(["./dist"]);
+  return deleteAsync(["./dist"]);
 });
 
 gulp.task("move", function () {
