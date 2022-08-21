@@ -1,5 +1,19 @@
 # Angular OpenVPN Status Installation
 
+## Create App (client directory)
+
+- `ng new ng-openvpn-status --style=scss --routing=true`
+
+### Angular Generate Commands
+
+- `ng g c login`
+- `ng g c page-not-found`
+- `ng g c home`
+- `ng g service server`
+- `ng g guard auth` // can activate
+- `ng g guard logged-in`  // can activate
+- `ng g interceptor http-error`
+
 ## Client Installation
 
 - `npm i luxon @types/luxon ngx-logger`
@@ -25,20 +39,6 @@
 - `npm init`
 - `npm i typescript express @types/express compression @types/compression ts-node gulp @types/gulp gulp-cli gulp-typescript del axios @types/axios winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken cors @types/cors redis`
 
-## Create App (client directory)
-
-- `ng new ng-openvpn-status --style=scss --routing=true`
-
-### Angular Generate Commands
-
-- `ng g c login`
-- `ng g c page-not-found`
-- `ng g c home`
-- `ng g service server`
-- `ng g guard auth` // can activate
-- `ng g guard logged-in`  // can activate
-- `ng g interceptor http-error`
-
 ## Bench Testing
 
 - compile code
@@ -52,21 +52,8 @@
 - `npm i`
 - `npm start` // command prompt will need to be run as administrator
 
-## Hosting Website with Amazon Web Services
-
-- *Note*: all of the packages used by server, need to be installed for client, because they share the same `node_modules` folder
-- in `client/src/app/server.service.ts` change `SERVER`  to
-- in `server/src/serverConfig.json` set `localhostTesting` to `false`
-- build server: `cd server`, `gulp`
-- build Angular application: `cd client`, `npm run build`
-  - development: `npm run build-dev` or `npm run watch`
-- copy the following into `client/dist/ng-openvpn-status`
-  - `client/package.json`
-  - all files in `server/dist/`
 
 ## Troubleshooting
 
 - `ERROR in The Angular Compiler requires TypeScript >=3.6.4 and <3.9.0 but 3.9.5 was found instead.`
   - `npm i typescript@">=4.2.3 < 4.4"`
-- `ERESOLVE unable to resolve dependency tree`
-  - `npm config set legacy-peer-deps true`
