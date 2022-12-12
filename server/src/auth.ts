@@ -1,4 +1,5 @@
 // interfaces
+import { LoginIntf } from "./interfaces/LoginIntf";
 import { LogoutIntf } from "./interfaces/LogoutIntf";
 
 // config
@@ -34,7 +35,7 @@ export class Authentication {
             }
 
             // get data
-            const data = req.body;
+            const data: LoginIntf = req.body;
 
             // check for a matching login
             let matchFound: boolean = false;
