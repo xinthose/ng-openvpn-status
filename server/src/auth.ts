@@ -53,7 +53,7 @@ export class Authentication {
             // handle match found
             if (matchFound) {
                 // generate access token
-                const token: string = sign(data.username, config.jsonWebToken.secret, {
+                const token: string = sign({ "username": data.username }, config.jsonWebToken.secret, {
                     "expiresIn": config.jsonWebToken.expire
                 });
 
