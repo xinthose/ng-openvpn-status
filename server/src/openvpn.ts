@@ -10,6 +10,8 @@ import { ClientRequest } from "http";
 // libraries
 import express, { Router, Request, Response } from "express";
 import winston from 'winston';
+import { parse, stringify } from 'yaml';
+import fs from 'fs';
 
 export class Openvpn {
     private logId: string = "Openvpn.";
@@ -24,26 +26,18 @@ export class Openvpn {
         this.logger = logger;
         this.axios = axios;
 
-        this.router.post('/blank1', [this.blank1.bind(this)]);
+        this.router.get('/getConfig', [this.getConfig.bind(this)]);
     }
 
-    private async blank1(req: Request, res: Response) {
+    private async getConfig(req: Request, res: Response) {
         try {
-            if (this.debug) {
-                this.logger.error(`${this.logId}blank1 >> req.body = ${JSON.stringify(req.body)}`);
-            }
+
 
             // return response data
             res.sendStatus(200);
         } catch (error: any) {
-            if (axios.isAxiosError(error)) {
-                const errStr = this.getAxiosError(error);
-                this.logger.error(`${this.logId}blank1 >> error = ${error}`);
-                res.status(500).send(errStr);
-            } else {
-                this.logger.error(`${this.logId}blank1 >> error = ${error}`);
-                res.status(500).send(error);
-            }
+            this.logger.error(`${this.logId}getConfig >> error = ${error}`);
+            res.status(500).send(error);
         }
     }
 

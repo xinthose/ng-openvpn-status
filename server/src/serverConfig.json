@@ -2,6 +2,7 @@
   "production": false,
   "debug": true,
   "advDebug": false,
+  "localhostTesting": true,
   "port": 8090,
   "users": [
     {

@@ -3,6 +3,7 @@ import gulp from 'gulp';
 import { deleteAsync } from 'del';
 import ts from "gulp-typescript";
 import nodemon from "gulp-nodemon";
+import jeditor from "gulp-json-editor";
 
 // config
 var tsProject = ts.createProject("tsconfig.json");
@@ -33,6 +34,19 @@ gulp.task("build-ts", function () {
     .js.pipe(gulp.dest("./dist"));
 });
 
+gulp.task("prod-config", function () {
+  return gulp.src(["./src/serverConfig.json"])
+    .pipe(jeditor(function (json) {
+      // set production
+      json.production = true;
+      json.debug = false;
+      json.advDebug = false;
+      json.localhostTesting = false;
+      return json;
+    }))
+    .pipe(gulp.dest("./dist/config"))
+});
+
 gulp.task("serve", function () {
   gulp.watch([
     "./**/*.ts",
@@ -44,4 +58,4 @@ gulp.task("serve", function () {
 
 // Combined tasks
 gulp.task("test", gulp.series("clean-log", "serve"));
-gulp.task("default", gulp.series("clean-build", "move", "build-ts"));
+gulp.task("default", gulp.series("clean-build", "move", "build-ts", "prod-config"));

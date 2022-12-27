@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
+    "gulp-json-editor": "^2.5.6",
     "gulp-nodemon": "^2.5.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "jsonwebtoken": "^9.0.0",
@@ -31,7 +32,8 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4",
     "winston": "^3.8.2",
-    "winston-loggly-bulk": "^3.2.1"
+    "winston-loggly-bulk": "^3.2.1",
+    "yaml": "^2.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
