@@ -9,6 +9,7 @@
 - `ng g c login`
 - `ng g c page-not-found`
 - `ng g c home`
+- `ng g c config`
 - `ng g service server`
 - `ng g guard auth` // can activate
 - `ng g guard logged-in`  // can activate
@@ -37,7 +38,7 @@
 ## Server Installation
 
 - `npm init`
-- `npm i typescript express @types/express compression @types/compression ts-node gulp @types/gulp gulp-cli gulp-typescript del axios @types/axios winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken cors @types/cors redis`
+- `npm i typescript express @types/express compression @types/compression ts-node gulp @types/gulp gulp-cli gulp-typescript del axios @types/axios winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken cors @types/cors redis telnet-client`
 
 ## Bench Testing
 
@@ -51,7 +52,6 @@
 - cd `C:\inetpub\wwwroot\ng-openvpn-status_node`
 - `npm i`
 - `npm start` // command prompt will need to be run as administrator
-
 
 ## Troubleshooting
 

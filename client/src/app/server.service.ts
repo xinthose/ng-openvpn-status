@@ -59,6 +59,7 @@ export class AuthService {
   @Output() isLoggedInEvent: EventEmitter<boolean> = new EventEmitter();
   // events: active class for navbar
   @Output() homeSelectedEvent: EventEmitter<null> = new EventEmitter();
+  @Output() configSelectedEvent: EventEmitter<null> = new EventEmitter();
 
   constructor(
     private logger: NGXLogger,

@@ -34,6 +34,7 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { ConfigComponent } from './config/config.component';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { DialogsModule } from '@progress/kendo-angular-dialog';
     AppComponent,
     LoginComponent,
     HomeComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    ConfigComponent
   ],
   imports: [
     // General

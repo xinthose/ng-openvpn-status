@@ -35,8 +35,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   @ViewChild("popup", { read: ElementRef, static: false }) public popup!: ElementRef;
   // forms
   public LoginForm: FormGroup;
-  // subscriptions
-  homeSelected$!: Subscription;
 
   constructor(
     private authService: AuthService,

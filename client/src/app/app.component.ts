@@ -33,12 +33,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   public confirmLogout: boolean = false;
   // navigation selected
   public homeSelected: boolean = false;
+  public configSelected: boolean = false;
   // icons
   faUser = faUser;
   faSignOutAlt = faSignOutAlt;
   // subscriptions
   isLoggedIn$!: Subscription;
   homeSelected$!: Subscription;
+  configSelected$!: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -67,9 +69,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       }
     });
 
+    // set active link
     this.homeSelected$ = this.authService.homeSelectedEvent.subscribe(() => {
       this.resetNavSelected();
       this.homeSelected = true;
+    });
+    this.configSelected$ = this.authService.configSelectedEvent.subscribe(() => {
+      this.resetNavSelected();
+      this.configSelected = true;
     });
   }
 
@@ -110,11 +117,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   private resetNavSelected(): void {
     this.homeSelected = false;
+    this.configSelected = false;
   }
 
   ngOnDestroy() {
     this.isLoggedIn$.unsubscribe();
     this.homeSelected$.unsubscribe();
+    this.configSelected$.unsubscribe();
   }
 
 }

@@ -1,7 +1,7 @@
 {
   "debug": true,
   "advDebug": false,
-  "autoLogin": false,
+  "autoLogin": true,
   "inactivityLogoutTime": 900000,
   "appTitle": "OpenVPN Status"
 }
