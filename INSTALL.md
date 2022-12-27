@@ -55,5 +55,5 @@
 
 ## Troubleshooting
 
-- `ERROR in The Angular Compiler requires TypeScript >=3.6.4 and <3.9.0 but 3.9.5 was found instead.`
-  - `npm i typescript@">=4.2.3 < 4.4"`
+- `ERROR in The Angular Compiler requires TypeScript >=4.8.2 and <4.9.0 but 3.9.5 was found instead.`
+  - `npm i typescript@">=4.8.2 < 4.9.0"`
