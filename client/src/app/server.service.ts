@@ -28,16 +28,46 @@ import { IInactivityConfig, InactivityCountdownTimer } from 'inactivity-countdow
   providedIn: "root",
 })
 export class ServerService {
+  private logID: string = "ServerService.";
   private debug: boolean = config.debug;
   public editSource: any;
 
   constructor(
     private http: HttpClient,
     private logger: NGXLogger,
+    private authService: AuthService,
   ) { }
 
-  private async post(url: string, body: Object): Promise<any> {
+  private async post(route: string, body: Object): Promise<any> {
+    // create headers
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Authorization": `Bearer ${this.authService.authToken}`,
+      }),
+    };
+
+    // build URL
+    const url: string = `http://${window.location.hostname}:8090/${route}`;
+    if (this.debug) {
+      this.logger.debug(`${this.logID}post >> url = ${url}`);
+    }
+
+    // make request
+    return firstValueFrom(this.http.post(url, body, httpOptions));
   }
+
+  public async getConfig(): Promise<any> {
+    try {
+      return firstValueFrom(this.http.get("openvpn/getConfig"));
+    } catch (error: any) {
+      const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
+      this.logger.error("AuthService.login error >> error.message = " + msg);
+      throw new Error(msg);
+    }
+  }
+
 
 }
 
@@ -51,13 +81,13 @@ export class ServerService {
 export class AuthService {
   private logID: string = "AuthService.";
   private debug: boolean = config.debug;
-  private authToken: string = "";
+  public authToken: string = "";
   public isLoggedIn: boolean = false;
   public username: string = "";
   inactivityTimer: any;
   // events
   @Output() isLoggedInEvent: EventEmitter<boolean> = new EventEmitter();
-  // events: active class for navbar
+  /// active class for navbar
   @Output() homeSelectedEvent: EventEmitter<null> = new EventEmitter();
   @Output() configSelectedEvent: EventEmitter<null> = new EventEmitter();
 

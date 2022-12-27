@@ -3,63 +3,41 @@
 // config
 import config from "./serverConfig.json";
 
-// axios
-import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
-import { ClientRequest } from "http";
-
 // libraries
 import express, { Router, Request, Response } from "express";
-import winston from 'winston';
-import { parse, stringify } from 'yaml';
-import fs from 'fs';
+import winston from "winston";
+import { parse, stringify } from "yaml";
+import fs from "fs";
 
 export class Openvpn {
     private logId: string = "Openvpn.";
-    private debug: boolean;
+    private debug: boolean = config.debug;
+    private localhostTesting: boolean = config.localhostTesting;
     private logger: winston.Logger;
     public router: Router = express.Router();
-    private axios: AxiosInstance;
+    private fsPromises: any = fs.promises;
 
-    constructor(debug: boolean, logger: winston.Logger, axios: AxiosInstance) {
+    constructor(logger: winston.Logger) {
         // set data
-        this.debug = debug;
         this.logger = logger;
-        this.axios = axios;
 
-        this.router.get('/getConfig', [this.getConfig.bind(this)]);
+        this.router.get("/getConfig", [this.getConfig.bind(this)]);
     }
 
     private async getConfig(req: Request, res: Response) {
         try {
+            // get yaml file
+            const file = await this.fsPromises.readFile("./openVPNservers.yml", "utf8");
 
+            // parse the file
+            const config = await parse(file);
 
             // return response data
-            res.sendStatus(200);
+            res.status(200).send(config);
         } catch (error: any) {
             this.logger.error(`${this.logId}getConfig >> error = ${error}`);
             res.status(500).send(error);
         }
-    }
-
-    // other
-
-    private getAxiosError(error: AxiosError): string {
-        // Documentation <https://github.com/axios/axios#handling-errors>
-        let errStr: string = "";
-        if (error.response) {
-            // The request was made and the server responded with a status code that falls out of the range of 2xx
-            errStr = `axios >> data = ${JSON.stringify(error.response.data)}; status = ${error.response.status}; headers = ${JSON.stringify(error.response.headers)}`;
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js
-            const err: ClientRequest = error.request;
-            errStr = `axios >> request = ${JSON.stringify(err)}`;
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            errStr = `axios >> message = ${error.message}`;
-        }
-
-        return errStr;
     }
 
 }

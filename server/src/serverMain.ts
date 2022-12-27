@@ -9,10 +9,6 @@ import config from "./serverConfig.json";
 // interfaces
 import { WinstonLogLevelsEnum } from "./enum/WinstonLogLevelsEnum";
 
-// axios
-import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
-import { ClientRequest } from "http";
-
 // libraries
 import express, { Request, Response, NextFunction } from "express";
 import compression from "compression";
@@ -54,7 +50,6 @@ export class OpenvpnServer {
         ],
     }
     private logger: winston.Logger;
-    private axios: AxiosInstance;
     private redisClient: RedisClientType;
     // classes
     private openvpn: Openvpn;
@@ -64,7 +59,6 @@ export class OpenvpnServer {
     constructor() {
         // initialize
         this.logger = winston.createLogger(this.loggerOptions);
-        this.axios = axios.create();
 
         // setup server
         this.app = express();
@@ -82,9 +76,9 @@ export class OpenvpnServer {
         });
 
         // create classes
-        this.openvpn = new Openvpn(this.debug, this.logger, this.axios);
-        this.auth = new Authentication(this.debug, this.logger, this.redisClient);
-        this.utility = new Utility(this.debug, this.logger);
+        this.openvpn = new Openvpn(this.logger);
+        this.auth = new Authentication(this.logger, this.redisClient);
+        this.utility = new Utility(this.logger);
 
         // tell app to use routes, call checkAuth for some, and 401 anything falling through
         this.app.use("/openvpn", this.checkAuth.bind(this), this.openvpn.router, function (req: Request, res: Response) {

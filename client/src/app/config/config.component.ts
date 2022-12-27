@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 
 // Services
-import { AuthService } from "../server.service";
+import { AuthService, ServerService } from "../server.service";
 import { NotificationService } from "@progress/kendo-angular-notification";
 
-// other
+// Other
 import { NGXLogger } from 'ngx-logger';
+import { environment } from '../../environments/environment';
+import config from "../../assets/config.json";
 
 @Component({
   selector: 'app-config',
@@ -13,18 +15,33 @@ import { NGXLogger } from 'ngx-logger';
   styleUrls: ['./config.component.scss']
 })
 export class ConfigComponent implements OnInit {
+  private debug: boolean = config.debug;
+  private logID: string = "LoginComponent.";
+  public loading: boolean = false;
 
   constructor(
     private authService: AuthService,
+    private serverService: ServerService,
     private notificationService: NotificationService,
     private logger: NGXLogger,
   ) { }
 
-  ngOnInit(): void {
-    // set active class in navbar
-    setTimeout(() => {
-      this.authService.configSelectedEvent.emit();
-    });
+  async ngOnInit() {
+    try {
+      // set active class in navbar
+      setTimeout(() => {
+        this.authService.configSelectedEvent.emit();
+      });
+
+      const response = this.serverService.getConfig();
+      if (this.debug) {
+        this.logger.debug(`${this.logID}ngOnInit >> getConfig >> response = ${JSON.stringify(response)}`);
+      }
+
+    } catch (error: any) {
+      this.logger.error(`${this.logID}ngOnInit >> error = ${error}`);
+      this.loading = false;
+    }
   }
 
 }

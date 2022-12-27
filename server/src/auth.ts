@@ -14,14 +14,13 @@ import { RedisClientType } from 'redis';
 
 export class Authentication {
     private logId: string = "Authentication.";
-    private debug: boolean;
+    private debug: boolean = config.debug;
     private logger: winston.Logger;
     private redisClient: RedisClientType;
     public router: Router = express.Router();
 
-    constructor(debug: boolean, logger: winston.Logger, redisClient: RedisClientType) {
+    constructor(logger: winston.Logger, redisClient: RedisClientType) {
         // set data
-        this.debug = debug;
         this.logger = logger;
         this.redisClient = redisClient;
 
