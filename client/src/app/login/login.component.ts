@@ -89,6 +89,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (response.loginOK) {
         // set login success
         this.authService.username = e.value["Username"];
+        this.authService.authToken = response.token;
         this.authService.isLoggedIn = true;
 
         // emit event

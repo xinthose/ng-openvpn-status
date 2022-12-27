@@ -49,7 +49,7 @@ export class ServerService {
     };
 
     // build URL
-    const url: string = `http://${window.location.hostname}:8090/${route}`;
+    const url: string = `http://${window.location.hostname}:${config.serverPort}/${route}`;
     if (this.debug) {
       this.logger.debug(`${this.logID}post >> url = ${url}`);
     }
@@ -58,9 +58,26 @@ export class ServerService {
     return firstValueFrom(this.http.post(url, body, httpOptions));
   }
 
+  private async get(route: string): Promise<any> {
+    // create headers
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "Authorization": `Bearer ${this.authService.authToken}`,
+      }),
+    };
+
+    // build URL
+    const url: string = `http://${window.location.hostname}:${config.serverPort}/${route}`;
+    if (this.debug) {
+      this.logger.debug(`${this.logID}get >> url = ${url}`);
+    }
+
+    // make request
+    return firstValueFrom(this.http.get(url, httpOptions));
+  }
   public async getConfig(): Promise<any> {
     try {
-      return firstValueFrom(this.http.get("openvpn/getConfig"));
+      return this.get("openvpn/getConfig");
     } catch (error: any) {
       const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
       this.logger.error("AuthService.login error >> error.message = " + msg);
@@ -137,7 +154,7 @@ export class AuthService {
     };
 
     // build URL
-    const url: string = `http://${window.location.hostname}:8090/auth/${route}`;
+    const url: string = `http://${window.location.hostname}:${config.serverPort}/auth/${route}`;
     if (this.debug) {
       this.logger.debug(`${this.logID}post >> url = ${url}`);
     }

@@ -3,5 +3,6 @@
   "advDebug": false,
   "autoLogin": true,
   "inactivityLogoutTime": 900000,
-  "appTitle": "OpenVPN Status"
+  "appTitle": "OpenVPN Status",
+  "serverPort": 8090
 }
