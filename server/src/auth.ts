@@ -1,5 +1,7 @@
 // interfaces
+import { LoginIntf } from "./interfaces/LoginIntf";
 import { LogoutIntf } from "./interfaces/LogoutIntf";
+import { VerifyLoginIntf } from "./interfaces/VerifyLoginIntf";
 
 // config
 import config from "./serverConfig.json";
@@ -7,7 +9,7 @@ import config from "./serverConfig.json";
 // libraries
 import express, { Router, Request, Response } from "express";
 import winston from 'winston';
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 import { RedisClientType } from 'redis';
 
 export class Authentication {
@@ -25,6 +27,7 @@ export class Authentication {
 
         this.router.post('/login', [this.login.bind(this)]);
         this.router.post('/logout', [this.logout.bind(this)]);
+        this.router.post('/verify', [this.verify.bind(this)]);
     }
 
     private async login(req: Request, res: Response) {
@@ -34,7 +37,7 @@ export class Authentication {
             }
 
             // get data
-            const data = req.body;
+            const data: LoginIntf = req.body;
 
             // check for a matching login
             let matchFound: boolean = false;
@@ -94,4 +97,23 @@ export class Authentication {
         }
     }
 
+    private async verify(req: Request, res: Response) {
+        try {
+            if (this.debug) {
+                this.logger.error(`${this.logId}verify >> req.body = ${JSON.stringify(req.body)}`);
+            }
+
+            // get data
+            const data: VerifyLoginIntf = req.body;
+
+            // verify token, will throw if there is an error
+            verify(data.token, config.jsonWebToken.secret);
+
+            // send response
+            res.status(200).send();
+        } catch (error: any) {
+            this.logger.error(`${this.logId}verify >> error = ${error}`);
+            res.status(401).send(error);
+        }
+    }
 }
