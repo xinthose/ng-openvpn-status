@@ -4,7 +4,7 @@
   passwordPrompt: Wk60Rk3rtb2WOvE
   timeout: 5000
 - name: Example Server 2
-  host: 10.1.1.123
+  host: 10.1.1.196
   port: 7506
   passwordPrompt: R1Dz1LzfyXhCAbb
   timeout: 5000

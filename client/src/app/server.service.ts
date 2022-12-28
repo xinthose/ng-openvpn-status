@@ -83,7 +83,7 @@ export class ServerService {
 
   public updateConfig(openVPNservers: Array<OpenVPNserversIntf>): Promise<null> {
     if (this.debug) {
-      this.logger.debug(`${this.logID}login >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
+      this.logger.debug(`${this.logID}updateConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
     }
 
     return this.post("openvpn/updateConfig", openVPNservers);

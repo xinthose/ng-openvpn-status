@@ -139,19 +139,10 @@ export class ConfigComponent implements OnInit {
       // show loading icon
       this.submitLoading = true;
 
-      // get servers from YAML config file
-      const openVPNservers: Array<OpenVPNserversIntf> = await this.serverService.getConfig();
-      if (this.debug) {
-        this.logger.debug(`${this.logID}getConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
-      }
-
-      // clear current grid data
-      this.openVPNserversGridData = [];
-
-      // fill grid data
-      for (const openVPNserver of openVPNservers) {
-        this.openVPNserversGridData.push({
-          "guid": uuidv4(),
+      // create submit data
+      const data: Array<OpenVPNserversIntf> = [];
+      for (const openVPNserver of this.openVPNserversGridData) {
+        data.push({
           "name": openVPNserver.name,
           "host": openVPNserver.host,
           "port": openVPNserver.port,
@@ -160,9 +151,12 @@ export class ConfigComponent implements OnInit {
         })
       }
 
+      // submit data
+      await this.serverService.updateConfig(data);
+
       // show popup
       this.notificationService.show({
-        content: "Data refreshed.",
+        content: "Config updated.",
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
         type: { style: "success", icon: false },  // none, success, error, warning, info

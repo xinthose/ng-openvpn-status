@@ -23,7 +23,7 @@ export class Openvpn {
         this.logger = logger;
 
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
-        this.router.post("/updateConfig", [this.getConfig.bind(this)]);
+        this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
     }
 
     private async getConfig(req: Request, res: Response) {
@@ -55,25 +55,24 @@ export class Openvpn {
             // get data
             const openVPNservers: Array<OpenVPNserversIntf> = req.body;
             if (this.debug) {
-                this.logger.error(`${this.logId}updateConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
+                this.logger.debug(`${this.logId}updateConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
             }
 
             // convert it to a YAML string
             const yamlStr: string = stringify(openVPNservers);
             if (this.debug) {
-                this.logger.error(`${this.logId}updateConfig >> yamlStr = ${yamlStr}`);
+                this.logger.debug(`${this.logId}updateConfig >> yamlStr = ${yamlStr}`);
             }
 
             // update config file
-            let file: any;
             if (this.localhostTesting) {
-                file = await this.fsPromises.writeFile("C:/Users/adamd/Documents/GitHub/ng-openvpn-status/server/src/openVPNservers.yaml", yamlStr);
+                await this.fsPromises.writeFile("C:/Users/adamd/Documents/GitHub/ng-openvpn-status/server/src/openVPNservers.yaml", yamlStr);
             } else {
-                file = await this.fsPromises.writeFile("./openVPNservers.yaml", yamlStr);
+                await this.fsPromises.writeFile("./openVPNservers.yaml", yamlStr);
             }
 
             // return response data
-            res.sendStatus(200);
+            res.status(200).json({ "message": "OK" });
         } catch (error: any) {
             this.logger.error(`${this.logId}updateConfig >> error = ${error}`);
             res.status(500).send(error);
