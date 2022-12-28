@@ -22,7 +22,6 @@ export class Authentication {
     this.logger = logger;
 
     this.router.post('/login', [this.login.bind(this)]);
-    this.router.post('/logout', [this.logout.bind(this)]);
     this.router.post('/verify', [this.verify.bind(this)]);
   }
 
@@ -66,20 +65,6 @@ export class Authentication {
       }
     } catch (error: any) {
       this.logger.error(`${this.logId}login >> error = ${error}`);
-      res.status(500).send(error);
-    }
-  }
-
-  private async logout(req: Request, res: Response) {
-    try {
-      if (this.debug) {
-        this.logger.error(`${this.logId}logout >> req.body = ${JSON.stringify(req.body)}`);
-      }
-
-      // return
-      res.sendStatus(200);
-    } catch (error: any) {
-      this.logger.error(`${this.logId}logout >> error = ${error}`);
       res.status(500).send(error);
     }
   }

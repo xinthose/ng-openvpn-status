@@ -2,13 +2,13 @@
   <!-- Refresh, Submit -->
   <div class="row justify-content-center mb-3">
     <div class="col-xxl-1 col-xl-2 col-lg-3 col-md-4 col-sm-5 col-6 text-center">
-      <button kendoButton (click)="getConfig()" [disabled]="configLoading">
+      <button kendoButton (click)="getConfig()" [disabled]="configLoading || submitLoading">
         <span class="spinner-border spinner-border-sm me-2" *ngIf="configLoading"></span>
         Refresh
       </button>
     </div>
     <div class="col-xxl-1 col-xl-2 col-lg-3 col-md-4 col-sm-5 col-6 text-center">
-      <button kendoButton (click)="getConfig()" [disabled]="submitLoading">
+      <button kendoButton (click)="submitConfig()" [disabled]="configLoading || submitLoading">
         <span class="spinner-border spinner-border-sm me-2" *ngIf="submitLoading"></span>
         Submit
       </button>
@@ -42,7 +42,7 @@
                 </kendo-grid-column>
                 <kendo-grid-column field="passwordPrompt" title="Password" editor="text" [width]="200">
                 </kendo-grid-column>
-                <kendo-grid-column field="timeout" title="Timeout" editor="numeric" [width]="120" format="{0:# ms}">
+                <kendo-grid-column field="timeout" title="Timeout" editor="numeric" [width]="120" format="{0:##,# ms}">
                 </kendo-grid-column>
                 <kendo-grid-command-column title="Command" [width]="220">
                   <ng-template kendoGridCellTemplate let-isNew="isNew">

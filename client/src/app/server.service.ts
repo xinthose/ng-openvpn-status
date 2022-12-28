@@ -77,17 +77,17 @@ export class ServerService {
     return firstValueFrom(this.http.get(url, httpOptions));
   }
 
-  public async getConfig(): Promise<Array<OpenVPNserversIntf>> {
-    try {
-      return this.get("openvpn/getConfig");
-    } catch (error: any) {
-      const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
-      this.logger.error("AuthService.login error >> error.message = " + msg);
-      throw new Error(msg);
-    }
+  public getConfig(): Promise<Array<OpenVPNserversIntf>> {
+    return this.get("openvpn/getConfig");
   }
 
+  public updateConfig(openVPNservers: Array<OpenVPNserversIntf>): Promise<null> {
+    if (this.debug) {
+      this.logger.debug(`${this.logID}login >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
+    }
 
+    return this.post("openvpn/updateConfig", openVPNservers);
+  }
 }
 
 /* #endregion */
@@ -121,7 +121,7 @@ export class AuthService {
       windowResetEvents: ["mousemove", "keypress"],
       timeoutCallback: () => {
         if (this.debug) {
-          this.logger.debug("AuthService.startInactivityTimer >> inactivity limit reached");
+          this.logger.debug(`${this.logID}startInactivityTimer >> inactivity limit reached`);
         }
 
         // show popup
@@ -165,58 +165,48 @@ export class AuthService {
     return firstValueFrom(this.http.post(url, body, httpOptions));
   }
 
-  public async login(username: string, password: string): Promise<LoginStatusIntf> {
-    try {
-      if (this.debug) {
-        this.logger.debug(`${this.logID}login >> username = ${username}; password = ${password}`);
-      }
-
-      const body = {
-        "username": username,
-        "password": password,
-      };
-      return this.post("login", body);
-    } catch (error: any) {
-      const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
-      this.logger.error("AuthService.login error >> error.message = " + msg);
-      throw new Error(msg);
+  public login(username: string, password: string): Promise<LoginStatusIntf> {
+    if (this.debug) {
+      this.logger.debug(`${this.logID}login >> username = ${username}; password = ${password}`);
     }
+
+    const body = {
+      "username": username,
+      "password": password,
+    };
+    return this.post("login", body);
   }
 
-  public async logout(): Promise<any> {
-    try {
-      // log logout
-      this.logger.info(`${this.logID}logout >> user logged out >> username = ${this.username}`);
+  public logout() {
+    // log logout
+    this.logger.info(`${this.logID}logout >> user logged out >> username = ${this.username}`);
 
-      // reset
-      this.isLoggedIn = false;
+    // reset
+    this.isLoggedIn = false;
+    this.authToken = "";
+    this.username = "";
 
-      // emit changes
-      this.isLoggedInEvent.emit(false);
+    // emit changes
+    this.isLoggedInEvent.emit(false);
 
-      // show popup
-      this.notificationService.show({
-        content: "You have been logged out.",
-        cssClass: "customNotification",
-        position: { horizontal: "center", vertical: "top" },
-        type: { style: "success", icon: false },  // none, success, error, warning, info
-        hideAfter: 3000,  // milliseconds
-        animation: {
-          type: "slide",
-          duration: 150, // milliseconds (notif)
-        },
-      });
+    // show popup
+    this.notificationService.show({
+      content: "You have been logged out.",
+      cssClass: "customNotification",
+      position: { horizontal: "center", vertical: "top" },
+      type: { style: "success", icon: false },  // none, success, error, warning, info
+      hideAfter: 3000,  // milliseconds
+      animation: {
+        type: "slide",
+        duration: 150, // milliseconds (notif)
+      },
+    });
 
-      // stop inactivity timer
-      this.inactivityTimer.stop();
+    // stop inactivity timer
+    this.inactivityTimer.stop();
 
-      // navigate
-      this.router.navigate(["login"]);
-    } catch (error: any) {
-      const msg = JSON.stringify(error.message, Object.getOwnPropertyNames(error));
-      this.logger.error("AuthService.logout error >> error.message = " + msg);
-      throw new Error(msg);
-    }
+    // navigate
+    this.router.navigate(["login"]);
   }
 
 }

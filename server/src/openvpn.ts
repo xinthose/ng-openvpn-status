@@ -1,4 +1,5 @@
 // interfaces
+import { OpenVPNserversIntf } from "./interfaces/OpenVPNservers.interface";
 
 // config
 import config from "./serverConfig.json";
@@ -22,6 +23,7 @@ export class Openvpn {
         this.logger = logger;
 
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
+        this.router.post("/updateConfig", [this.getConfig.bind(this)]);
     }
 
     private async getConfig(req: Request, res: Response) {
@@ -35,7 +37,7 @@ export class Openvpn {
             }
 
             // parse the file
-            const config = await parse(file);
+            const config: Array<OpenVPNserversIntf> = await parse(file);
             if (this.debug) {
                 this.logger.error(`${this.logId}getConfig >> config = ${JSON.stringify(config)}`);
             }
@@ -48,4 +50,33 @@ export class Openvpn {
         }
     }
 
+    private async updateConfig(req: Request, res: Response) {
+        try {
+            // get data
+            const openVPNservers: Array<OpenVPNserversIntf> = req.body;
+            if (this.debug) {
+                this.logger.error(`${this.logId}updateConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
+            }
+
+            // convert it to a YAML string
+            const yamlStr: string = stringify(openVPNservers);
+            if (this.debug) {
+                this.logger.error(`${this.logId}updateConfig >> yamlStr = ${yamlStr}`);
+            }
+
+            // update config file
+            let file: any;
+            if (this.localhostTesting) {
+                file = await this.fsPromises.writeFile("C:/Users/adamd/Documents/GitHub/ng-openvpn-status/server/src/openVPNservers.yaml", yamlStr);
+            } else {
+                file = await this.fsPromises.writeFile("./openVPNservers.yaml", yamlStr);
+            }
+
+            // return response data
+            res.sendStatus(200);
+        } catch (error: any) {
+            this.logger.error(`${this.logId}updateConfig >> error = ${error}`);
+            res.status(500).send(error);
+        }
+    }
 }

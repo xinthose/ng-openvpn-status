@@ -114,10 +114,69 @@ export class ConfigComponent implements OnInit {
         },
       });
 
-      // hide configLoading icon
+      // hide loading icon
       this.configLoading = false;
     } catch (error: any) {
       this.configLoading = false;
+      this.logger.error(`${this.logID}getConfig >> error = ${error}`);
+      this.notificationService.show({
+        content: error.toString(),
+        closable: true,
+        cssClass: "notification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "error", icon: false },  // none, success, error, warning, info
+        hideAfter: 10000,  // milliseconds
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+    }
+  }
+
+  async submitConfig() {
+    try {
+      // show loading icon
+      this.submitLoading = true;
+
+      // get servers from YAML config file
+      const openVPNservers: Array<OpenVPNserversIntf> = await this.serverService.getConfig();
+      if (this.debug) {
+        this.logger.debug(`${this.logID}getConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
+      }
+
+      // clear current grid data
+      this.openVPNserversGridData = [];
+
+      // fill grid data
+      for (const openVPNserver of openVPNservers) {
+        this.openVPNserversGridData.push({
+          "guid": uuidv4(),
+          "name": openVPNserver.name,
+          "host": openVPNserver.host,
+          "port": openVPNserver.port,
+          "passwordPrompt": openVPNserver.passwordPrompt,
+          "timeout": openVPNserver.timeout,
+        })
+      }
+
+      // show popup
+      this.notificationService.show({
+        content: "Data refreshed.",
+        cssClass: "notification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "success", icon: false },  // none, success, error, warning, info
+        hideAfter: 2000,  // milliseconds
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+
+      // hide loading icon
+      this.submitLoading = false;
+    } catch (error: any) {
+      this.submitLoading = false;
       this.logger.error(`${this.logID}getConfig >> error = ${error}`);
       this.notificationService.show({
         content: error.toString(),
