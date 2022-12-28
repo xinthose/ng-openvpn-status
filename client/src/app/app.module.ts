@@ -18,6 +18,7 @@ import { NotificationModule } from '@progress/kendo-angular-notification';
 import { RippleModule } from '@progress/kendo-angular-ripple';
 import { PopupModule } from '@progress/kendo-angular-popup';
 import { IndicatorsModule } from '@progress/kendo-angular-indicators';
+import { GridModule } from '@progress/kendo-angular-grid';
 
 // MDBootstrap
 import { MdbCollapseModule } from "mdb-angular-ui-kit/collapse";
@@ -35,6 +36,7 @@ import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { ConfigComponent } from './config/config.component';
+
 
 
 @NgModule({
@@ -68,11 +70,12 @@ import { ConfigComponent } from './config/config.component';
     RippleModule,
     PopupModule,
     IndicatorsModule,
+    DialogsModule,
+    GridModule,
     // MDBootstrap
     MdbCollapseModule,
     // other
     FontAwesomeModule,
-    DialogsModule,
   ],
   providers: [
     {

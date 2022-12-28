@@ -21,7 +21,10 @@
     "strictPropertyInitialization": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "types": [
+      "@angular/localize"
+    ]
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

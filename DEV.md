@@ -17,7 +17,7 @@
 
 ## Client Installation
 
-- `npm i luxon @types/luxon ngx-logger`
+- `npm i luxon @types/luxon ngx-logger uuid @types/uuid`
 - Inactivity Logout <https://github.com/vespertilian/inactivity-countdown-timer>
   - `npm i inactivity-countdown-timer`
 - Font Awesome Free <https://github.com/FortAwesome/angular-fontawesome>
@@ -34,6 +34,7 @@
   - `ng add @progress/kendo-angular-popup`
   - `ng add @progress/kendo-angular-indicators`
   - `ng add @progress/kendo-angular-ripple`
+  - `ng add @progress/kendo-angular-grid`
 
 ## Server Installation
 
