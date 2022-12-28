@@ -36,22 +36,22 @@
 
 ### `server/src/openVPNservers.yaml`
 
-- Example config file format, seperate multiple servers with a dash in front of `name`
+- Example config file format, seperate multiple servers with a dash in front of `name` with all of the same properties as the first one (order of properties is not important)
 
 ```yaml
 - name: Example Server 1
   host: 127.0.0.1
   port: 7505
-  passwordPrompt: Wk60Rk3rtb2WOvE
+  passwordPrompt:
   timeout: 5000
 - name: Example Server 2...
 ```
 
-- `name`: string: human readable name of OpenVPN server
-- `host`: string: IP address of the computer running the OpenVPN server, use `127.0.0.1` if this application is installed on the same computer as the OpenVPN server
-- `port` port of the management interface set in the OpenVPN server's configuration file
-- `passwordPrompt` leave this blank if a password file is not being used in the OpenVPN server's configuration file, if a password file is being used, this parameter will have the same value as its contents
-- `timeout`: sets the socket to timeout after the specified number of milliseconds of inactivity on the socket
+- `name`: string >> human readable name of OpenVPN server
+- `host`: string >> IP address of the computer running the OpenVPN server, use `127.0.0.1` if this application is installed on the same computer as the OpenVPN server
+- `port`: number (1-65535) >> port of the management interface set in the OpenVPN server's configuration file
+- `passwordPrompt`: string >> leave this blank if a password file is not being used in the OpenVPN server's configuration file; if a password file is being used, this parameter will have the same value as its contents
+- `timeout`: number >> amount of time in milliseconds before the management socket times out after inactivity
 
 ## Updating to New Version
 
