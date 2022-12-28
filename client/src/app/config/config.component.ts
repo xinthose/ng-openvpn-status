@@ -33,7 +33,7 @@ export class ConfigComponent implements OnInit {
         this.authService.configSelectedEvent.emit();
       });
 
-      const response = this.serverService.getConfig();
+      const response = await this.serverService.getConfig();
       if (this.debug) {
         this.logger.debug(`${this.logID}ngOnInit >> getConfig >> response = ${JSON.stringify(response)}`);
       }

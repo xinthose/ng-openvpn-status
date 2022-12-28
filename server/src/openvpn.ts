@@ -27,10 +27,18 @@ export class Openvpn {
     private async getConfig(req: Request, res: Response) {
         try {
             // get yaml file
-            const file = await this.fsPromises.readFile("./openVPNservers.yml", "utf8");
+            let file: any;
+            if (this.localhostTesting) {
+                file = await this.fsPromises.readFile("C:/Users/adamd/Documents/GitHub/ng-openvpn-status/server/src/openVPNservers.yaml", "utf8");
+            } else {
+                file = await this.fsPromises.readFile("./openVPNservers.yaml", "utf8");
+            }
 
             // parse the file
             const config = await parse(file);
+            if (this.debug) {
+                this.logger.error(`${this.logId}getConfig >> config = ${JSON.stringify(config)}`);
+            }
 
             // return response data
             res.status(200).send(config);
