@@ -36,7 +36,7 @@ export class ConfigComponent implements OnInit {
         this.authService.configSelectedEvent.emit();
       });
 
-      //
+      // get servers from YAML config file
       const openVPNservers: Array<OpenVPNserversIntf> = await this.serverService.getConfig();
       if (this.debug) {
         this.logger.debug(`${this.logID}ngOnInit >> getConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
