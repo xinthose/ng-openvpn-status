@@ -6,7 +6,9 @@
   - Reference the manual for your version of OpenVPN: <https://openvpn.net/community-resources/reference-manual-for-openvpn-2-6/>
 - Add this line to your config file: `management 127.0.0.1 7505`
   - `127.0.0.1`: only allows connections to the management interface from programs running on this computer locally (for security)
-  - `7505`: any port not being used on this computer
+    - you can change this to `0.0.0.0` to allow connections from outside of the computer, if you do, please specify a password file for security and add it to the end of the management line: `management 0.0.0.0 7505 pw-file`
+      - `pw-file` is a file that only contains your password with no spaces or new lines
+  - `7505`: any port not being used on this computer, use different ports for multiple OpenVPN servers running on the same computer
 - save the config file and restart your OpenVPN service (will close all current connections)
   - Linux: `service openvpn restart`
   - Windows: open the `Services` app, find `OpenVPNService`, right click it and tell it to restart
@@ -36,17 +38,20 @@
 
 - Example config file format, seperate multiple servers with a dash in front of `name`
 
-```config
+```yaml
 - name: Example Server 1
-  host: 10.1.1.196
-  localAddress: 0.0.0.0
-  port: 32977
+  host: 127.0.0.1
+  port: 7505
+  passwordPrompt: Wk60Rk3rtb2WOvE
   timeout: 5000
 - name: Example Server 2...
 ```
 
-- `name`: string: uman readable name of OpenVPN server
-- `host`: IP address of the computer running the OpenVPN server
+- `name`: string: human readable name of OpenVPN server
+- `host`: string: IP address of the computer running the OpenVPN server, use `127.0.0.1` if this application is installed on the same computer as the OpenVPN server
+- `port` port of the management interface set in the OpenVPN server's configuration file
+- `passwordPrompt` leave this blank if a password file is not being used in the OpenVPN server's configuration file, if a password file is being used, this parameter will have the same value as its contents
+- `timeout`: sets the socket to timeout after the specified number of milliseconds of inactivity on the socket
 
 ## Updating to New Version
 
