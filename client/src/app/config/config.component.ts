@@ -4,6 +4,9 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService, ServerService } from "../server.service";
 import { NotificationService } from "@progress/kendo-angular-notification";
 
+// interfaces
+import { OpenVPNserversIntf } from "../interfaces/OpenVPNservers.interface";
+
 // Other
 import { NGXLogger } from 'ngx-logger';
 import { environment } from '../../environments/environment';
@@ -33,9 +36,10 @@ export class ConfigComponent implements OnInit {
         this.authService.configSelectedEvent.emit();
       });
 
-      const response = await this.serverService.getConfig();
+      //
+      const openVPNservers: Array<OpenVPNserversIntf> = await this.serverService.getConfig();
       if (this.debug) {
-        this.logger.debug(`${this.logID}ngOnInit >> getConfig >> response = ${JSON.stringify(response)}`);
+        this.logger.debug(`${this.logID}ngOnInit >> getConfig >> openVPNservers = ${JSON.stringify(openVPNservers)}`);
       }
 
     } catch (error: any) {

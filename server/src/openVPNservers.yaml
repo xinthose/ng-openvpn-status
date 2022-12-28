@@ -1,4 +1,8 @@
-server1:
+- name: Example Server 1
   host: 10.1.1.196
   port: 32977
+  timeout: 5000
+- name: Example Server 2
+  host: 10.1.1.123
+  port: 32978
   timeout: 5000

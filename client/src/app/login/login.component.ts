@@ -12,7 +12,7 @@ import { NotificationService } from "@progress/kendo-angular-notification";
 import { Subscription } from "rxjs";
 
 // interfaces
-import { LoginStatusIntf } from '../interfaces/loginStatusIntf';
+import { LoginStatusIntf } from '../interfaces/LoginStatus.interface';
 
 // Other
 import { NGXLogger } from 'ngx-logger';

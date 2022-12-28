@@ -9,7 +9,8 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { firstValueFrom } from "rxjs";
 
 // interfaces
-import { LoginStatusIntf } from './interfaces/loginStatusIntf';
+import { LoginStatusIntf } from './interfaces/LoginStatus.interface';
+import { OpenVPNserversIntf } from "./interfaces/OpenVPNservers.interface";
 
 // Other
 import { environment } from '../environments/environment';
@@ -75,7 +76,8 @@ export class ServerService {
     // make request
     return firstValueFrom(this.http.get(url, httpOptions));
   }
-  public async getConfig(): Promise<any> {
+
+  public async getConfig(): Promise<Array<OpenVPNserversIntf>> {
     try {
       return this.get("openvpn/getConfig");
     } catch (error: any) {
