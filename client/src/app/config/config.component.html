@@ -1,10 +1,16 @@
 <main>
-  <!-- Refresh -->
+  <!-- Refresh, Submit -->
   <div class="row justify-content-center mb-3">
-    <div class="col text-center">
-      <button kendoButton (click)="getConfig()" [disabled]="loading">
-        <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+    <div class="col-xxl-1 col-xl-2 col-lg-3 col-md-4 col-sm-5 col-6 text-center">
+      <button kendoButton (click)="getConfig()" [disabled]="configLoading">
+        <span class="spinner-border spinner-border-sm me-2" *ngIf="configLoading"></span>
         Refresh
+      </button>
+    </div>
+    <div class="col-xxl-1 col-xl-2 col-lg-3 col-md-4 col-sm-5 col-6 text-center">
+      <button kendoButton (click)="getConfig()" [disabled]="submitLoading">
+        <span class="spinner-border spinner-border-sm me-2" *ngIf="submitLoading"></span>
+        Submit
       </button>
     </div>
   </div>
@@ -22,7 +28,7 @@
           <div class="card-text">
             <div class="row mt-2 justify-content-center">
               <kendo-grid [data]="openVPNserversGridData" [height]="300" [sortable]="true"
-                [sort]="openVPNserversGridSort" (add)="openVPNserversGridAdd($event)"
+                [sort]="openVPNserversGridSort" [loading]="configLoading" (add)="openVPNserversGridAdd($event)"
                 (cancel)="openVPNserversGridCancel($event)" (save)="openVPNserversGridSave($event)"
                 (remove)="openVPNserversGridRemove($event)" (edit)="openVPNserversGridEdit($event)">
                 <!-- Toolbar -->
@@ -36,7 +42,7 @@
                 </kendo-grid-column>
                 <kendo-grid-column field="passwordPrompt" title="Password" editor="text" [width]="200">
                 </kendo-grid-column>
-                <kendo-grid-column field="timeout" title="Timeout" editor="numeric" [width]="120" format="{0:n0}">
+                <kendo-grid-column field="timeout" title="Timeout" editor="numeric" [width]="120" format="{0:# ms}">
                 </kendo-grid-column>
                 <kendo-grid-command-column title="Command" [width]="220">
                   <ng-template kendoGridCellTemplate let-isNew="isNew">

@@ -11,6 +11,7 @@ import { AuthService, ServerService } from "../server.service";
 // progress
 import { GridDataResult } from "@progress/kendo-angular-grid";
 import { SortDescriptor, orderBy } from "@progress/kendo-data-query";
+import { formatNumber } from '@progress/kendo-intl';
 
 // interfaces
 import { OpenVPNserversIntf } from "../interfaces/OpenVPNservers.interface";
@@ -34,7 +35,8 @@ import config from "../../assets/config.json";
 export class ConfigComponent implements OnInit {
   private debug: boolean = config.debug;
   private logID: string = "LoginComponent.";
-  loading: boolean = false;
+  public configLoading: boolean = false;
+  public submitLoading: boolean = false;
   private ipRegex: RegExp = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
   // interfaces grid
   public OpenVPNserversGridForm!: FormGroup;
@@ -76,7 +78,7 @@ export class ConfigComponent implements OnInit {
   async getConfig() {
     try {
       // show loading icon
-      this.loading = true;
+      this.configLoading = true;
 
       // get servers from YAML config file
       const openVPNservers: Array<OpenVPNserversIntf> = await this.serverService.getConfig();
@@ -112,12 +114,13 @@ export class ConfigComponent implements OnInit {
         },
       });
 
-      // hide loading icon
-      this.loading = false;
+      // hide configLoading icon
+      this.configLoading = false;
     } catch (error: any) {
+      this.configLoading = false;
       this.logger.error(`${this.logID}getConfig >> error = ${error}`);
       this.notificationService.show({
-        content: error,
+        content: error.toString(),
         closable: true,
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
@@ -128,7 +131,6 @@ export class ConfigComponent implements OnInit {
           duration: 150, // milliseconds (notif)
         },
       });
-      this.loading = false;
     }
   }
 
