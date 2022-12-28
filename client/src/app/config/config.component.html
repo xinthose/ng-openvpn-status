@@ -1,56 +1,54 @@
 <main>
-  <div class="container">
-    <!-- Refresh -->
-    <div class="row justify-content-center mb-3">
-      <div class="col text-center">
-        <button kendoButton (click)="getConfig()" [disabled]="loading">
-          <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
-          Refresh
-        </button>
-      </div>
+  <!-- Refresh -->
+  <div class="row justify-content-center mb-3">
+    <div class="col text-center">
+      <button kendoButton (click)="getConfig()" [disabled]="loading">
+        <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+        Refresh
+      </button>
     </div>
-    <!-- Interfaces -->
-    <div class="row justify-content-center mb-3">
-      <!-- Interfaces -->
-      <div class="col-xxl-7 col-xl-8 col-lg-9 col-md-12 col-sm-12 col-12">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">
-              <div kendoTooltip filter="fa-icon">
-                Interfaces
-                <fa-icon [icon]="faCircleQuestion" title="Physical connections or virtual ones." class="ms-2"></fa-icon>
-              </div>
-            </h4>
-            <div class="card-text">
-              <div class="row mt-2 justify-content-center">
-                <kendo-grid [data]="openVPNserversGridData" [height]="300" [sortable]="true"
-                  [sort]="openVPNserversGridSort" (add)="openVPNserversGridAdd($event)"
-                  (cancel)="openVPNserversGridCancel($event)" (save)="openVPNserversGridSave($event)"
-                  (remove)="openVPNserversGridRemove($event)" (edit)="openVPNserversGridEdit($event)">
-                  <!-- Toolbar -->
-                  <ng-template kendoGridToolbarTemplate>
-                    <button type="button" kendoGridAddCommand icon="plus" class="float-left">New Interface</button>
+  </div>
+  <!-- OpenVPN Servers -->
+  <div class="row justify-content-center mb-3">
+    <!-- OpenVPN Servers -->
+    <div class="col-xxl-10 col-xl-11 col-lg-12 col-md-12 col-sm-12 col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">
+            <div kendoTooltip filter="fa-icon">
+              OpenVPN Servers
+            </div>
+          </h4>
+          <div class="card-text">
+            <div class="row mt-2 justify-content-center">
+              <kendo-grid [data]="openVPNserversGridData" [height]="300" [sortable]="true"
+                [sort]="openVPNserversGridSort" (add)="openVPNserversGridAdd($event)"
+                (cancel)="openVPNserversGridCancel($event)" (save)="openVPNserversGridSave($event)"
+                (remove)="openVPNserversGridRemove($event)" (edit)="openVPNserversGridEdit($event)">
+                <!-- Toolbar -->
+                <ng-template kendoGridToolbarTemplate>
+                  <button type="button" kendoGridAddCommand icon="plus" class="float-left">New Server</button>
+                </ng-template>
+                <!-- Columns -->
+                <kendo-grid-column field="name" title="Name" editor="text" [width]="200"> </kendo-grid-column>
+                <kendo-grid-column field="host" title="Host" editor="text" [width]="150"> </kendo-grid-column>
+                <kendo-grid-column field="port" title="Port" editor="numeric" [width]="120" format="{0:n0}">
+                </kendo-grid-column>
+                <kendo-grid-column field="passwordPrompt" title="Password" editor="text" [width]="200">
+                </kendo-grid-column>
+                <kendo-grid-column field="timeout" title="Timeout" editor="numeric" [width]="120" format="{0:n0}">
+                </kendo-grid-column>
+                <kendo-grid-command-column title="Command" [width]="220">
+                  <ng-template kendoGridCellTemplate let-isNew="isNew">
+                    <button kendoGridEditCommand themeColor="primary">Edit</button>
+                    <button kendoGridRemoveCommand>Remove</button>
+                    <button kendoGridSaveCommand [disabled]="OpenVPNserversGridForm?.invalid">{{ isNew ? 'Add' :
+                      'Update'
+                      }}</button>
+                    <button kendoGridCancelCommand>{{ isNew ? 'Discard changes' : 'Cancel' }}</button>
                   </ng-template>
-                  <!-- Columns -->
-                  <kendo-grid-column field="name" title="Name" editor="text" [width]="150"> </kendo-grid-column>
-                  <kendo-grid-column field="host" title="Host" editor="text" [width]="150"> </kendo-grid-column>
-                  <kendo-grid-column field="port" title="Port" editor="numeric" [width]="150"> </kendo-grid-column>
-                  <kendo-grid-column field="passwordPrompt" title="Password" editor="text" [width]="150">
-                  </kendo-grid-column>
-                  <kendo-grid-column field="timeout" title="Timeout" editor="numeric" [width]="150">
-                  </kendo-grid-column>
-                  <kendo-grid-command-column title="Command" [width]="220">
-                    <ng-template kendoGridCellTemplate let-isNew="isNew">
-                      <button kendoGridEditCommand themeColor="primary">Edit</button>
-                      <button kendoGridRemoveCommand>Remove</button>
-                      <button kendoGridSaveCommand [disabled]="OpenVPNserversGridForm?.invalid">{{ isNew ? 'Add' :
-                        'Update'
-                        }}</button>
-                      <button kendoGridCancelCommand>{{ isNew ? 'Discard changes' : 'Cancel' }}</button>
-                    </ng-template>
-                  </kendo-grid-command-column>
-                </kendo-grid>
-              </div>
+                </kendo-grid-command-column>
+              </kendo-grid>
             </div>
           </div>
         </div>
