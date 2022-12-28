@@ -16,7 +16,6 @@ import winston, { LoggerOptions, level, format } from "winston";
 import fs from "fs";
 import { verify } from "jsonwebtoken";
 import cors from "cors";
-import { createClient, RedisClientType } from 'redis';
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer.";
@@ -50,7 +49,6 @@ export class OpenvpnServer {
         ],
     }
     private logger: winston.Logger;
-    private redisClient: RedisClientType;
     // classes
     private openvpn: Openvpn;
     private auth: Authentication;
@@ -69,15 +67,9 @@ export class OpenvpnServer {
         this.app.use(express.static(this.appFolder, this.appOptions));  // serve website files
         this.app.disable("x-powered-by");   // prevent attackers from finding out that this app uses express
 
-        // connect to in memory database
-        this.redisClient = createClient();
-        this.redisClient.on("error", (err: any) => {
-            this.logger.error(`${this.logID}redis >> error = ${err}`);
-        });
-
         // create classes
         this.openvpn = new Openvpn(this.logger);
-        this.auth = new Authentication(this.logger, this.redisClient);
+        this.auth = new Authentication(this.logger);
         this.utility = new Utility(this.logger);
 
         // tell app to use routes, call checkAuth for some, and 401 anything falling through
@@ -131,24 +123,7 @@ export class OpenvpnServer {
                     res.sendStatus(403);
                     return next("router");
                 } else {
-                    // connect to in memory database
-                    this.redisClient.connect().then(() => {
-                        // get all black listed tokens from logouts
-                        this.redisClient.lRange("blackTokens", 0, -1).then((blackTokens: Array<string>) => {
-                            if (this.advDebug) {
-                                this.logger.debug(`${this.logID}checkAuth >> blackTokens = ${JSON.stringify(blackTokens)}`);
-                            }
-
-                            // check if current token is in list
-                            if (blackTokens.indexOf(token) > -1) {
-                                this.logger.error(`${this.logID}checkAuth >> token found in black list`);
-                                res.sendStatus(403);
-                                return next("router");
-                            } else {
-                                return next();
-                            }
-                        })
-                    })
+                    return next();
                 }
             });
         } catch (error: any) {
