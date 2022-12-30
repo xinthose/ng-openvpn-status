@@ -22,7 +22,7 @@
           <div class="card-text">
             <div class="row mt-2 justify-content-center">
               <kendo-grid [data]="clientsGridData" [height]="300" [sortable]="true" [sort]="clientsGridSort"
-                [filterable]="true" [loading]="clientsLoading">
+                [filterable]="true" [loading]="clientsLoading" (remove)="disconnectClient($event)">
                 <!-- Columns -->
                 <kendo-grid-column field="name" title="Name" filter="text" [width]="200"> </kendo-grid-column>
                 <kendo-grid-column field="openvpnIpAddress" title="VPN IP" filter="text" [width]="150">
@@ -33,7 +33,7 @@
                 <kendo-grid-column field="connected" title="Password" filter="date" [width]="200">
                 </kendo-grid-column>
                 <kendo-grid-command-column title="Command" [width]="220">
-                  <ng-template kendoGridCellTemplate let-isNew="isNew">
+                  <ng-template kendoGridCellTemplate>
                     <button kendoGridRemoveCommand themeColor="primary">Disconnect</button>
                   </ng-template>
                 </kendo-grid-command-column>

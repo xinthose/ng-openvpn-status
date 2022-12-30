@@ -130,6 +130,13 @@ export class ServerComponent implements OnInit {
     }
   }
 
-  /* #endregion */
+  public disconnectClient({ dataItem }: any) {
+    if (this.debug) {
+      this.logger.debug(`${this.logID}disconnectClient >> dataItem = ${JSON.stringify(dataItem)}`);
+    }
+
+    // get data
+    const data: ClientsIntf = dataItem;
+  }
 
 }
