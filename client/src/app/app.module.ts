@@ -22,6 +22,7 @@ import { GridModule } from '@progress/kendo-angular-grid';
 
 // MDBootstrap
 import { MdbCollapseModule } from "mdb-angular-ui-kit/collapse";
+import { MdbDropdownModule } from "mdb-angular-ui-kit/dropdown";
 
 // Other
 import { HttpErrorInterceptor } from './http-error.interceptor';
@@ -76,6 +77,7 @@ import { ServerComponent } from './server/server.component';
     GridModule,
     // MDBootstrap
     MdbCollapseModule,
+    MdbDropdownModule,
     // other
     FontAwesomeModule,
   ],

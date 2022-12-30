@@ -153,7 +153,7 @@ export class ConfigComponent implements OnInit {
         })
       }
 
-      // check if all email addresses are unique
+      // check if all server ID's are unique
       const uniqueOpenVPNservers = new Set(data.map(openVPNserver => openVPNserver.id));
       if (uniqueOpenVPNservers.size < data.length) {
         this.logger.error(`${this.logID}submitConfig >> duplicates found >> uniqueFirebaseUsers.size = ${uniqueOpenVPNservers.size}; firebaseUsersWithEmail.length = ${data.length}`);

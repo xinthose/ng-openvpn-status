@@ -14,13 +14,20 @@
         </li>
         <!-- Servers -->
         <li class="nav-item" mdbWavesEffect>
-          <div mdbDropdown #supportDropdown class="dropdown">
+          <div mdbDropdown #serversDropdown class="dropdown">
             <button class="btn nav-link dropdown-toggle fs-6" [class.active]="serverSelected" type="button"
               mdbDropdownToggle>
-              Support
+              Servers
             </button>
             <ul mdbDropdownMenu class="dropdown-menu">
-
+              <div *ngFor="let openVPNserver of openVPNservers">
+                <li>
+                  <a class="dropdown-item fs-6" [routerLink]="['/server/' + openVPNserver.id]"
+                    (click)="serversDropdown.hide();">
+                    {{ openVPNserver.name }}
+                  </a>
+                </li>
+              </div>
             </ul>
           </div>
         </li>

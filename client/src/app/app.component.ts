@@ -62,6 +62,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // set title of webpage
     this.titleService.setTitle(config.appTitle);
 
+
     this.isLoggedIn$ = this.authService.isLoggedInEvent.subscribe((isLoggedIn: boolean) => {
       if (this.debug) {
         this.logger.debug(`${this.logID}constructor >> isLoggedIn = ${isLoggedIn}`);
@@ -73,6 +74,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       // handle status
       if (isLoggedIn) {
         this.username = this.authService.username;
+
+        // get content for servers dropdown
+        this.getConfig();
       } else {
         this.username = "";
       }
