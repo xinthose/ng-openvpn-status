@@ -24,7 +24,7 @@
 ### `server/src/serverConfig.json`
 
 - users
-  - create multiple users by copying and pasting the format of the current login, adding commas between new entries
+  - create multiple users by copying and pasting the format of the current login, adding commas between new entries (last element does not have a comma after it though)
     - make sure `username` is unique between entries
   - it is recommended to change the default username/password from admin/admin for added security
 - `jsonWebToken`
@@ -36,17 +36,19 @@
 
 ### `server/src/openVPNservers.yaml`
 
-- Example config file format, seperate multiple servers with a dash in front of `name` with all of the same properties as the first one (order of properties is not important)
+- Example config file format, seperate multiple servers with a dash in front of `id` with all of the same properties as the first one (order of properties is not important)
 
 ```yaml
-- name: Example Server 1
+- id: 1
+  name: Example Server 1
   host: 127.0.0.1
   port: 7505
   passwordPrompt:
   timeout: 5000
-- name: Example Server 2...
+- id: 2...
 ```
 
+- `id`: number >> **unique** ID for every server to allow for filtering and other operations
 - `name`: string >> human readable name of OpenVPN server
 - `host`: string >> IP address of the computer running the OpenVPN server, use `127.0.0.1` if this application is installed on the same computer as the OpenVPN server
 - `port`: number (1-65535) >> port of the management interface set in the OpenVPN server's configuration file

@@ -5,10 +5,24 @@
     <button class="navbar-toggler" type="button" (click)="toggler.toggle()">
       <i class="fas fa-bars"></i>
     </button>
+    <!-- Collapsible wrapper -->
     <div class="collapse navbar-collapse" mdbCollapse #toggler="mdbCollapse">
+      <!-- Left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" [class.active]="homeSelected" routerLink="config">Config</a>
+          <a class="nav-link" [class.active]="configSelected" routerLink="config">Config</a>
+        </li>
+        <!-- Servers -->
+        <li class="nav-item" mdbWavesEffect>
+          <div mdbDropdown #supportDropdown class="dropdown">
+            <button class="btn nav-link dropdown-toggle fs-6" [class.active]="serverSelected" type="button"
+              mdbDropdownToggle>
+              Support
+            </button>
+            <ul mdbDropdownMenu class="dropdown-menu">
+
+            </ul>
+          </div>
         </li>
       </ul>
       <!-- Right Links -->

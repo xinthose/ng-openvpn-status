@@ -17,7 +17,7 @@
   <!-- OpenVPN Servers -->
   <div class="row justify-content-center mb-3">
     <!-- OpenVPN Servers -->
-    <div class="col-xxl-10 col-xl-11 col-lg-12 col-md-12 col-sm-12 col-12">
+    <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">
@@ -36,6 +36,8 @@
                   <button type="button" kendoGridAddCommand icon="plus" class="float-left">New Server</button>
                 </ng-template>
                 <!-- Columns -->
+                <kendo-grid-column field="id" title="ID" editor="numeric" [width]="120" format="{0:n0}">
+                </kendo-grid-column>
                 <kendo-grid-column field="name" title="Name" editor="text" [width]="200"> </kendo-grid-column>
                 <kendo-grid-column field="host" title="Host" editor="text" [width]="150"> </kendo-grid-column>
                 <kendo-grid-column field="port" title="Port" editor="numeric" [width]="120" format="{0:n0}">

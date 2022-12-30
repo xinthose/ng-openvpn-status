@@ -1,9 +1,11 @@
-- name: Example Server 1
+- id: 1
+  name: Example Server 1
   host: 10.1.1.196
   port: 7505
   passwordPrompt: Wk60Rk3rtb2WOvE
   timeout: 5000
-- name: Example Server 2
+- id: 2
+  name: Example Server 2
   host: 10.1.1.196
   port: 7506
   passwordPrompt: R1Dz1LzfyXhCAbb

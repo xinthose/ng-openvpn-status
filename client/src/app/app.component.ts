@@ -3,8 +3,11 @@ import { Title } from "@angular/platform-browser";
 import { Location } from "@angular/common";
 
 // services
-import { AuthService } from "./server.service";
+import { AuthService, ServerService } from "./server.service";
 import { NotificationService } from "@progress/kendo-angular-notification";
+
+// interfaces
+import { OpenVPNserversIntf } from "./interfaces/OpenVPNservers.interface";
 
 // rxjs
 import { Subscription } from "rxjs";
@@ -29,11 +32,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   public isLoggedIn: boolean = false;
   public appTitle: string = config.appTitle;
   public username: string = "";
+  // loading
+  public configLoading: boolean = false;
+  // data
+  public openVPNservers: Array<OpenVPNserversIntf> = [];
   // windows / dialogs
   public confirmLogout: boolean = false;
   // navigation selected
   public homeSelected: boolean = false;
   public configSelected: boolean = false;
+  public serverSelected: boolean = false;
   // icons
   faUser = faUser;
   faSignOutAlt = faSignOutAlt;
@@ -41,21 +49,22 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   isLoggedIn$!: Subscription;
   homeSelected$!: Subscription;
   configSelected$!: Subscription;
+  serverSelected$!: Subscription;
 
   constructor(
     private authService: AuthService,
+    private serverService: ServerService,
     private notificationService: NotificationService,
     private logger: NGXLogger,
     private titleService: Title,
     private location: Location,
   ) {
+    // set title of webpage
     this.titleService.setTitle(config.appTitle);
-  }
 
-  ngAfterViewInit() {
     this.isLoggedIn$ = this.authService.isLoggedInEvent.subscribe((isLoggedIn: boolean) => {
       if (this.debug) {
-        this.logger.debug(`${this.logID}isLoggedInEvent >> isLoggedIn = ${isLoggedIn}`);
+        this.logger.debug(`${this.logID}constructor >> isLoggedIn = ${isLoggedIn}`);
       }
 
       // set logged in status
@@ -78,6 +87,45 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       this.resetNavSelected();
       this.configSelected = true;
     });
+    this.serverSelected$ = this.authService.serverSelectedEvent.subscribe(() => {
+      this.resetNavSelected();
+      this.serverSelected = true;
+    });
+  }
+
+  ngAfterViewInit() {
+
+  }
+
+  async getConfig() {
+    try {
+      // show loading icon
+      this.configLoading = true;
+
+      // get servers from YAML config file
+      this.openVPNservers = await this.serverService.getConfig();
+      if (this.debug) {
+        this.logger.debug(`${this.logID}getConfig >> openVPNservers = ${JSON.stringify(this.openVPNservers)}`);
+      }
+
+      // hide loading icon
+      this.configLoading = false;
+    } catch (error: any) {
+      this.configLoading = false;
+      this.logger.error(`${this.logID}getConfig >> error = ${error}`);
+      this.notificationService.show({
+        content: error.toString(),
+        closable: true,
+        cssClass: "notification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "error", icon: false },  // none, success, error, warning, info
+        hideAfter: 10000,  // milliseconds
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+    }
   }
 
   // navigation
@@ -118,12 +166,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private resetNavSelected(): void {
     this.homeSelected = false;
     this.configSelected = false;
+    this.serverSelected = false;
   }
 
   ngOnDestroy() {
     this.isLoggedIn$.unsubscribe();
     this.homeSelected$.unsubscribe();
     this.configSelected$.unsubscribe();
+    this.serverSelected$.unsubscribe();
   }
 
 }

@@ -109,6 +109,7 @@ export class AuthService {
   /// active class for navbar
   @Output() homeSelectedEvent: EventEmitter<null> = new EventEmitter();
   @Output() configSelectedEvent: EventEmitter<null> = new EventEmitter();
+  @Output() serverSelectedEvent: EventEmitter<null> = new EventEmitter();
 
   constructor(
     private logger: NGXLogger,

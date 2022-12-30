@@ -36,6 +36,7 @@ import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { ConfigComponent } from './config/config.component';
+import { ServerComponent } from './server/server.component';
 
 
 
@@ -45,7 +46,8 @@ import { ConfigComponent } from './config/config.component';
     LoginComponent,
     HomeComponent,
     PageNotFoundComponent,
-    ConfigComponent
+    ConfigComponent,
+    ServerComponent
   ],
   imports: [
     // General

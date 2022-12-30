@@ -15,7 +15,6 @@ import { formatNumber } from '@progress/kendo-intl';
 
 // interfaces
 import { OpenVPNserversIntf } from "../interfaces/OpenVPNservers.interface";
-import { OpenVPNserversGridIntf } from "../interfaces/OpenVPNserversGrid.interface";
 
 // Icons
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
@@ -23,7 +22,6 @@ import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 
 // Other
 import { NGXLogger } from 'ngx-logger';
-import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../environments/environment';
 import config from "../../assets/config.json";
 
@@ -46,7 +44,7 @@ export class ConfigComponent implements OnInit {
       dir: "asc"
     }
   ];
-  openVPNserversGridData: Array<OpenVPNserversGridIntf> = [];
+  openVPNserversGridData: Array<OpenVPNserversIntf> = [];
   openVPNserversGridRow: number = 0;
   // icons
   faPencilAlt = faPencilAlt;
@@ -92,7 +90,7 @@ export class ConfigComponent implements OnInit {
       // fill grid data
       for (const openVPNserver of openVPNservers) {
         this.openVPNserversGridData.push({
-          "guid": uuidv4(),
+          "id": openVPNserver.id,
           "name": openVPNserver.name,
           "host": openVPNserver.host,
           "port": openVPNserver.port,
@@ -143,6 +141,7 @@ export class ConfigComponent implements OnInit {
       const data: Array<OpenVPNserversIntf> = [];
       for (const openVPNserver of this.openVPNserversGridData) {
         data.push({
+          "id": openVPNserver.id,
           "name": openVPNserver.name,
           "host": openVPNserver.host,
           "port": openVPNserver.port,
@@ -194,7 +193,7 @@ export class ConfigComponent implements OnInit {
     this.openVPNserversGridClose(sender);
 
     this.OpenVPNserversGridForm = this.formBuilder.group({
-      "guid": [uuidv4()],
+      "id": [undefined, [Validators.required, Validators.min(1), Validators.max(99999)]],
       "name": ["", [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": ["", [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [undefined, [Validators.required, Validators.min(1), Validators.max(65535)]],
@@ -210,10 +209,10 @@ export class ConfigComponent implements OnInit {
     }
     this.openVPNserversGridClose(sender);
 
-    const data: OpenVPNserversGridIntf = dataItem;
+    const data: OpenVPNserversIntf = dataItem;
 
     this.OpenVPNserversGridForm = this.formBuilder.group({
-      "guid": [data.guid],
+      "id": [data.id],
       "name": [data.name, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": [data.host, [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [data.port, [Validators.required, Validators.min(1), Validators.max(65535)]],
@@ -236,7 +235,7 @@ export class ConfigComponent implements OnInit {
     }
 
     // get data
-    const data: OpenVPNserversGridIntf = formGroup.value;
+    const data: OpenVPNserversIntf = formGroup.value;
 
     if (isNew) {
       // add record to array
@@ -244,7 +243,7 @@ export class ConfigComponent implements OnInit {
     } else {
       // update specific record in array
       for (const row of this.openVPNserversGridData) {
-        if (row.guid === data.guid) {
+        if (row.id === data.id) {
           row.name = data.name;
           row.host = data.host;
           row.port = data.port;
@@ -265,11 +264,11 @@ export class ConfigComponent implements OnInit {
     }
 
     // get data
-    const data: OpenVPNserversGridIntf = dataItem;
+    const data: OpenVPNserversIntf = dataItem;
 
     // filter out removed row
-    this.openVPNserversGridData = this.openVPNserversGridData.filter((obj: OpenVPNserversGridIntf) => {
-      return obj.guid !== data.guid;
+    this.openVPNserversGridData = this.openVPNserversGridData.filter((obj: OpenVPNserversIntf) => {
+      return obj.id !== data.id;
     });
   }
 

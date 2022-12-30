@@ -10,6 +10,7 @@
 - `ng g c page-not-found`
 - `ng g c home`
 - `ng g c config`
+- `ng g c server`
 - `ng g service server`
 - `ng g guard auth` // can activate
 - `ng g guard logged-in`  // can activate
