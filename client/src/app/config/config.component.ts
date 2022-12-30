@@ -9,9 +9,7 @@ import { NotificationService } from "@progress/kendo-angular-notification";
 import { AuthService, ServerService } from "../server.service";
 
 // progress
-import { GridDataResult } from "@progress/kendo-angular-grid";
-import { SortDescriptor, orderBy } from "@progress/kendo-data-query";
-import { formatNumber } from '@progress/kendo-intl';
+import { SortDescriptor } from "@progress/kendo-data-query";
 
 // interfaces
 import { OpenVPNserversIntf } from "../interfaces/OpenVPNservers.interface";
@@ -23,7 +21,6 @@ import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
 
 // Other
 import { NGXLogger } from 'ngx-logger';
-import { environment } from '../../environments/environment';
 import config from "../../assets/config.json";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -34,11 +31,11 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class ConfigComponent implements OnInit {
   private debug: boolean = config.debug;
-  private logID: string = "LoginComponent.";
+  private logID: string = "ConfigComponent.";
   public configLoading: boolean = false;
   public submitLoading: boolean = false;
   private ipRegex: RegExp = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  // interfaces grid
+  // openvpn servers grid
   public OpenVPNserversGridForm!: FormGroup;
   public openVPNserversGridSort: SortDescriptor[] = [
     {
@@ -59,20 +56,15 @@ export class ConfigComponent implements OnInit {
     private logger: NGXLogger,
     private formBuilder: FormBuilder,
   ) {
+    // get eBox network
+    this.getConfig();
   }
 
-  async ngOnInit() {
-    try {
-      // set active class in navbar
-      setTimeout(() => {
-        this.authService.configSelectedEvent.emit();
-      });
-
-      // get eBox network
-      await this.getConfig();
-    } catch (error: any) {
-      this.logger.error("ConfigComponent.ngAfterViewChecked >> error = " + error);
-    }
+  ngOnInit() {
+    // set active class in navbar
+    setTimeout(() => {
+      this.authService.configSelectedEvent.emit();
+    });
   }
 
   async getConfig() {
