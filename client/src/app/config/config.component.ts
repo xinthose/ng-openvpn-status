@@ -153,6 +153,30 @@ export class ConfigComponent implements OnInit {
         })
       }
 
+      // check if all email addresses are unique
+      const uniqueOpenVPNservers = new Set(data.map(openVPNserver => openVPNserver.id));
+      if (uniqueOpenVPNservers.size < data.length) {
+        this.logger.error(`${this.logID}submitConfig >> duplicates found >> uniqueFirebaseUsers.size = ${uniqueOpenVPNservers.size}; firebaseUsersWithEmail.length = ${data.length}`);
+
+        // show popup
+        this.notificationService.show({
+          content: "ID must be unique.",
+          cssClass: "notification",
+          position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+          type: { style: "warning", icon: false },  // none, success, error, warning, info
+          hideAfter: 2000,  // milliseconds
+          animation: {
+            type: "fade",
+            duration: 150, // milliseconds (notif)
+          },
+        });
+
+        // hide loading icon
+        this.submitLoading = false;
+
+        return;
+      }
+
       // submit data
       await this.serverService.updateConfig(data);
 
@@ -273,7 +297,7 @@ export class ConfigComponent implements OnInit {
     const data: OpenVPNserversGridIntf = dataItem;
 
     // filter out removed row
-    this.openVPNserversGridData = this.openVPNserversGridData.filter((obj: OpenVPNserversIntf) => {
+    this.openVPNserversGridData = this.openVPNserversGridData.filter((obj: OpenVPNserversGridIntf) => {
       return obj.guid !== data.guid;
     });
   }
