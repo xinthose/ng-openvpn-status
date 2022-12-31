@@ -8,7 +8,7 @@ import express, { Router, Request, Response } from "express";
 import winston from 'winston';
 
 export class Utility {
-    private logId: string = "Utility.";
+    private logID: string = "Utility.";
     private debug: boolean = config.debug;
     private logger: winston.Logger;
     public router: Router = express.Router();

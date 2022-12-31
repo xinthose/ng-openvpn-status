@@ -12,7 +12,7 @@ import winston from 'winston';
 import { sign, verify } from "jsonwebtoken";
 
 export class Authentication {
-  private logId: string = "Authentication.";
+  private logID: string = "Authentication.";
   private debug: boolean = config.debug;
   private logger: winston.Logger;
   public router: Router = express.Router();
@@ -28,7 +28,7 @@ export class Authentication {
   private async login(req: Request, res: Response) {
     try {
       if (this.debug) {
-        this.logger.error(`${this.logId}login >> req.body = ${JSON.stringify(req.body)}`);
+        this.logger.error(`${this.logID}login >> req.body = ${JSON.stringify(req.body)}`);
       }
 
       // get data
@@ -64,7 +64,7 @@ export class Authentication {
         });
       }
     } catch (error: any) {
-      this.logger.error(`${this.logId}login >> error = ${error}`);
+      this.logger.error(`${this.logID}login >> error = ${error}`);
       res.status(500).send(error);
     }
   }
@@ -72,7 +72,7 @@ export class Authentication {
   private async verify(req: Request, res: Response) {
     try {
       if (this.debug) {
-        this.logger.error(`${this.logId}verify >> req.body = ${JSON.stringify(req.body)}`);
+        this.logger.error(`${this.logID}verify >> req.body = ${JSON.stringify(req.body)}`);
       }
 
       // get data
@@ -84,7 +84,7 @@ export class Authentication {
       // send response
       res.status(200).send();
     } catch (error: any) {
-      this.logger.error(`${this.logId}verify >> error = ${error}`);
+      this.logger.error(`${this.logID}verify >> error = ${error}`);
       res.status(401).send(error);
     }
   }
