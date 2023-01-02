@@ -45,7 +45,7 @@ export class Openvpn {
             // parse the file
             const config: Array<OpenVPNserversIntf> = await parse(file);
             if (this.debug) {
-                this.logger.error(`${this.logID}getConfig >> config = ${JSON.stringify(config)}`);
+                this.logger.debug(`${this.logID}getConfig >> config = ${JSON.stringify(config)}`);
             }
 
             // return response data
@@ -105,29 +105,34 @@ export class Openvpn {
             // parse the file
             const config: Array<OpenVPNserversIntf> = await parse(file);
             if (this.debug) {
-                this.logger.error(`${this.logID}connect >> config = ${JSON.stringify(config)}`);
+                this.logger.debug(`${this.logID}connect >> config = ${JSON.stringify(config)}`);
             }
 
             // get server by ID
             const openvpnServer = config.find(openvpnServer => openvpnServer.id === id);
             if (this.debug) {
-                this.logger.error(`${this.logID}connect >> openvpnServer = ${JSON.stringify(openvpnServer)}`);
+                this.logger.debug(`${this.logID}connect >> openvpnServer = ${JSON.stringify(openvpnServer)}`);
             }
 
             if (openvpnServer) {
                 // connect
-                await this.connectSocket(openvpnServer.host, openvpnServer.port);
+                await this.connectSocket(openvpnServer.host, openvpnServer.port, openvpnServer.timeout);
 
-                // login
+                // handle
                 if (this.socket) {
+                    this.setupSocketEvents();
+
                     // send password
                     await this.writeSocket(`${openvpnServer.password}\r\n`);    // return and newline required to submit the password
 
-                    // return response data
+                    // request real-time notification of OpenVPN bandwidth usage every 5 seconds
+                    await this.writeSocket("bytecount 5\r\n");
+
+                    // return OK
                     res.status(200).json({ "message": "OK" });
                 } else {
-                    this.logger.error(`${this.logID}connect >> socket was not created`);
-                    res.status(404).json({ "message": `Socket was not created.` })
+                    this.logger.error(`${this.logID}connect >> socket is not defined`);
+                    res.status(404).json({ "message": `Socket is not defined.` })
                 }
             } else {
                 this.logger.error(`${this.logID}connect >> OpenVPN Server was not found by that ID: ${id}`);
@@ -148,12 +153,14 @@ export class Openvpn {
             }
             const id: number = body.id;
 
-            await this.writeSocket("status 3\r\n");
+            // send command
+            await this.writeSocket("status 3\r\n"); // Show status information using the format of --status - version 3
             if (this.debug) {
                 this.logger.debug(`${this.logID}connect >> status = ${JSON.stringify(status)}`);
             }
 
-            res.status(200).send(status);
+            // return OK
+            res.status(200).json({ "message": "OK" });
         } catch (error: any) {
             this.logger.error(`${this.logID}connect >> error = ${error}`);
             res.status(500).send(error);
@@ -162,16 +169,16 @@ export class Openvpn {
 
     // utility 
 
-    public connectSocket(host: string, port: number): Promise<void> {
+    private connectSocket(host: string, port: number, timeout: number): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
                 this.socket = createConnection({
                     "host": host,
                     "port": port,
-                    "timeout": 5000,
+                    "timeout": timeout,
                 }, () => {
                     if (this.debug) {
-                        this.logger.error(`${this.logID}connectSocket >> connection created to ${host}:${port}`);
+                        this.logger.debug(`${this.logID}connectSocket >> connection created to ${host}:${port}`);
                     }
                     resolve();
                 });
@@ -182,13 +189,13 @@ export class Openvpn {
         });
     }
 
-    public writeSocket(data: string): Promise<void> {
+    private writeSocket(data: string): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
                 if (this.socket) {
                     this.socket.write(data, () => {
                         if (this.debug) {
-                            this.logger.error(`${this.logID}writeSocket >> data successfully written; data = ${data}`);
+                            this.logger.debug(`${this.logID}writeSocket >> data successfully written; data = ${data}`);
                         }
                         resolve();
                     });
@@ -200,5 +207,36 @@ export class Openvpn {
                 reject(error.toString());
             }
         });
+    }
+
+    private setupSocketEvents() {
+        try {
+            if (this.socket) {
+                this.socket.on("data", (data: Buffer) => {
+                    if (this.debug) {
+                        this.logger.debug(`${this.logID}setupSocketEvents >> data received; data = ${JSON.stringify(data)}`);
+                    }
+
+                });
+
+                this.socket.on("error", (err: Error) => {
+                    this.logger.error(`${this.logID}setupSocketEvents >> error received; error = ${err}`);
+
+                });
+
+                this.socket.on("close", (hadError: boolean) => {
+                    this.logger.error(`${this.logID}setupSocketEvents >> close received; hadError = ${hadError}`);
+                });
+
+                this.socket.on("timeout", () => {
+                    this.logger.error(`${this.logID}setupSocketEvents >> timeout received`);
+                });
+            } else {
+                throw new Error("socket is not defined");
+            }
+        } catch (error: any) {
+            this.logger.error(`${this.logID}setupSocketEvents >> error = ${error}`);
+            throw new Error(error.toString());
+        }
     }
 }
