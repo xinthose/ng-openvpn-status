@@ -26,6 +26,7 @@ export class Openvpn {
         this.logger = logger;
         this.telnet = telnet;
 
+
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
@@ -106,13 +107,13 @@ export class Openvpn {
             // parse the file
             const config: Array<OpenVPNserversIntf> = await parse(file);
             if (this.debug) {
-                this.logger.error(`${this.logID}getConfig >> config = ${JSON.stringify(config)}`);
+                this.logger.error(`${this.logID}connect >> config = ${JSON.stringify(config)}`);
             }
 
             // get server by ID
             const openvpnServer = config.find(openvpnServer => openvpnServer.id === id);
             if (this.debug) {
-                this.logger.error(`${this.logID}getConfig >> openvpnServer = ${JSON.stringify(openvpnServer)}`);
+                this.logger.error(`${this.logID}connect >> openvpnServer = ${JSON.stringify(openvpnServer)}`);
             }
 
             if (openvpnServer) {
@@ -122,23 +123,29 @@ export class Openvpn {
                     "port": openvpnServer.port,
                     // "loginPrompt": null,
                     // "username": null,
-                    "passwordPrompt": "ENTER PASSWORD:",
+                    // "passwordPrompt": "ENTER PASSWORD:",
                     // "loginPrompt": /ENTER PASSWORD:/i,
                     // "shellPrompt": />/,
-                    // "shellPrompt": null,
+                    "shellPrompt": null,
                     // "username": "",
-                    "password": openvpnServer.password,
+                    // "password": openvpnServer.password,
                     "timeout": openvpnServer.timeout,
                     "debug": this.debug,
                     "ors": "\r\n",
                 };
                 if (this.debug) {
-                    this.logger.error(`${this.logID}getConfig >> config = ${JSON.stringify(config)}`);
+                    this.logger.error(`${this.logID}connect >> config = ${JSON.stringify(config)}`);
                 }
 
                 // connect
                 await this.telnet.connect(config);
                 // await this.telnet.exec(openvpnServer.password);
+
+                // login when connected
+                this.telnet.on("connect", () => {
+                    this.logger.debug(`${this.logID}connect >> connected`);
+                    this.telnet.write(openvpnServer.password);
+                });
 
                 // return response data
                 res.status(200).json({ "message": "OK" });
