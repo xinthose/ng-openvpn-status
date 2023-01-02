@@ -130,6 +130,7 @@ export class Openvpn {
                     "password": openvpnServer.password,
                     "timeout": openvpnServer.timeout,
                     "debug": this.debug,
+                    "ors": "\r\n",
                 };
                 if (this.debug) {
                     this.logger.error(`${this.logID}getConfig >> config = ${JSON.stringify(config)}`);
