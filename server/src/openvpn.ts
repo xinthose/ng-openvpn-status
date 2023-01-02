@@ -111,15 +111,33 @@ export class Openvpn {
 
             // get server by ID
             const openvpnServer = config.find(openvpnServer => openvpnServer.id === id);
+            if (this.debug) {
+                this.logger.error(`${this.logID}getConfig >> openvpnServer = ${JSON.stringify(openvpnServer)}`);
+            }
 
             if (openvpnServer) {
-                // create connection to server
-                await this.telnet.connect({
+                // create connection config
+                const config = {
                     "host": openvpnServer.host,
                     "port": openvpnServer.port,
-                    "passwordPrompt": openvpnServer.passwordPrompt,
+                    // "loginPrompt": null,
+                    // "username": null,
+                    "passwordPrompt": "ENTER PASSWORD:",
+                    // "loginPrompt": /ENTER PASSWORD:/i,
+                    // "shellPrompt": />/,
+                    // "shellPrompt": null,
+                    // "username": "",
+                    "password": openvpnServer.password,
                     "timeout": openvpnServer.timeout,
-                });
+                    "debug": this.debug,
+                };
+                if (this.debug) {
+                    this.logger.error(`${this.logID}getConfig >> config = ${JSON.stringify(config)}`);
+                }
+
+                // connect
+                await this.telnet.connect(config);
+                // await this.telnet.exec(openvpnServer.password);
 
                 // return response data
                 res.status(200).json({ "message": "OK" });

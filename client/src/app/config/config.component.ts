@@ -89,7 +89,7 @@ export class ConfigComponent implements OnInit {
           "name": openVPNserver.name,
           "host": openVPNserver.host,
           "port": openVPNserver.port,
-          "passwordPrompt": openVPNserver.passwordPrompt,
+          "password": openVPNserver.password,
           "timeout": openVPNserver.timeout,
         })
       }
@@ -140,7 +140,7 @@ export class ConfigComponent implements OnInit {
           "name": openVPNserver.name,
           "host": openVPNserver.host,
           "port": openVPNserver.port,
-          "passwordPrompt": openVPNserver.passwordPrompt,
+          "password": openVPNserver.password,
           "timeout": openVPNserver.timeout,
         })
       }
@@ -217,7 +217,7 @@ export class ConfigComponent implements OnInit {
       "name": ["", [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": ["", [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [undefined, [Validators.required, Validators.min(1), Validators.max(65535)]],
-      "passwordPrompt": ["", [Validators.minLength(1), Validators.maxLength(255)]],
+      "password": ["", [Validators.minLength(1), Validators.maxLength(255)]],
       "timeout": ["", [Validators.required, Validators.min(1000), Validators.max(999999)]],
     });
     sender.addRow(this.OpenVPNserversGridForm);
@@ -237,7 +237,7 @@ export class ConfigComponent implements OnInit {
       "name": [data.name, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": [data.host, [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [data.port, [Validators.required, Validators.min(1), Validators.max(65535)]],
-      "passwordPrompt": [data.passwordPrompt, [Validators.minLength(1), Validators.maxLength(255)]],
+      "password": [data.password, [Validators.minLength(1), Validators.maxLength(255)]],
       "timeout": [data.timeout, [Validators.required, Validators.min(1000), Validators.max(999999)]],
     });
 
@@ -269,7 +269,7 @@ export class ConfigComponent implements OnInit {
           row.name = data.name;
           row.host = data.host;
           row.port = data.port;
-          row.passwordPrompt = data.passwordPrompt;
+          row.password = data.password;
           row.timeout = data.timeout;
           break;
         }

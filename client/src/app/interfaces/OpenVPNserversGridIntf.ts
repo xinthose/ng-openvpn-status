@@ -4,6 +4,6 @@ export interface OpenVPNserversGridIntf {
   "name": string,
   "host": string,
   "port": number,
-  "passwordPrompt": string,
+  "password": string,
   "timeout": number,
 };
