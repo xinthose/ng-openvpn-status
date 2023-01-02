@@ -97,7 +97,7 @@ export class ServerComponent implements OnInit {
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
         type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 10000,  // milliseconds
+        hideAfter: 5000,  // milliseconds
         animation: {
           type: "fade",
           duration: 150, // milliseconds (notif)
@@ -144,7 +144,7 @@ export class ServerComponent implements OnInit {
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
         type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 10000,  // milliseconds
+        hideAfter: 5000,  // milliseconds
         animation: {
           type: "fade",
           duration: 150, // milliseconds (notif)
@@ -155,19 +155,9 @@ export class ServerComponent implements OnInit {
 
   async getStatus(id: number) {
     try {
-      // show loading icon
-      this.clientsLoading = true;
-
-      // get servers from YAML config file
-      const response = await this.serverService.getStatus(id);
-      if (this.debug) {
-        this.logger.debug(`${this.logID}getStatus >> response = ${JSON.stringify(response)}`);
-      }
-
-      // hide loading icon
-      this.clientsLoading = false;
+      // tell server to send us a status
+      await this.serverService.getStatus(id);
     } catch (error: any) {
-      this.clientsLoading = false;
       this.logger.error(`${this.logID}getStatus >> error = ${error}`);
       this.notificationService.show({
         content: error.toString(),
@@ -175,7 +165,7 @@ export class ServerComponent implements OnInit {
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
         type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 10000,  // milliseconds
+        hideAfter: 5000,  // milliseconds
         animation: {
           type: "fade",
           duration: 150, // milliseconds (notif)
@@ -192,5 +182,4 @@ export class ServerComponent implements OnInit {
     // get data
     const data: ClientsIntf = dataItem;
   }
-
 }

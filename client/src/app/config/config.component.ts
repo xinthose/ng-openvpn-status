@@ -118,7 +118,7 @@ export class ConfigComponent implements OnInit {
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
         type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 10000,  // milliseconds
+        hideAfter: 5000,  // milliseconds
         animation: {
           type: "fade",
           duration: 150, // milliseconds (notif)
