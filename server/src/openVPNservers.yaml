@@ -4,9 +4,3 @@
   port: 7505
   password: Wk60Rk3rtb2WOvE
   timeout: 5000
-- id: 1
-  name: Example Server 2
-  host: 10.1.1.196
-  port: 7506
-  password: R1Dz1LzfyXhCAbb
-  timeout: 5000

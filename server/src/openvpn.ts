@@ -138,7 +138,7 @@ export class Openvpn {
             // handle
             if (openvpnServers) {
                 // clear sockets array
-                this.sockets = undefined;
+                this.sockets = [];
 
                 // connect to servers
                 for (const openvpnServer of openvpnServers) {
@@ -157,6 +157,7 @@ export class Openvpn {
             }
         } catch (error: any) {
             this.logger.error(`${this.logID}connect >> error = ${error}`);
+            throw new Error(error.toString());
         }
     }
 
@@ -166,26 +167,34 @@ export class Openvpn {
                 for (let index = 0; index < this.sockets.length; index++) {
                     await this.endSocket(index);
                     this.sockets[index].destroy();
+                    if (this.debug) {
+                        this.logger.debug(`${this.logID}disconnect >> connection closed to socket #${index}`);
+                    }
                 }
             }
         } catch (error: any) {
             this.logger.error(`${this.logID}connect >> error = ${error}`);
+            throw new Error(error.toString());
         }
     }
 
     private connectSocket(host: string, port: number, timeout: number): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
-                this.sockets?.push(createConnection({
-                    "host": host,
-                    "port": port,
-                    "timeout": timeout,
-                }, () => {
-                    if (this.debug) {
-                        this.logger.debug(`${this.logID}connectSocket >> connection created to ${host}:${port}`);
-                    }
-                    resolve();
-                }));
+                if (this.sockets) {
+                    this.sockets.push(createConnection({
+                        "host": host,
+                        "port": port,
+                        "timeout": timeout,
+                    }, () => {
+                        if (this.debug) {
+                            this.logger.debug(`${this.logID}connectSocket >> connection created to ${host}:${port}`);
+                        }
+                        resolve();
+                    }));
+                } else {
+                    throw new Error("sockets is not defined");
+                }
             } catch (error: any) {
                 this.logger.error(`${this.logID}connectSocket >> error = ${error}`);
                 reject(error.toString());
