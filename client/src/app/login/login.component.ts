@@ -121,6 +121,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loading = false;
     } catch (error: any) {
       this.logger.error(`${this.logID}onSubmit >> error = ${error}`);
+      this.notificationService.show({
+        content: error.toString(),
+        cssClass: "customNotification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "error", icon: false },  // none, success, error, warning, info
+        hideAfter: 5000,
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
       this.loading = false;
     }
   }

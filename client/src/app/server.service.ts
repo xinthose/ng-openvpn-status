@@ -90,17 +90,6 @@ export class ServerService {
     return this.post("openvpn/updateConfig", openVPNservers);
   }
 
-  public connect(id: number): Promise<null> {
-    if (this.debug) {
-      this.logger.debug(`${this.logID}connect >> id = ${id}`);
-    }
-
-    const body: ServerIdIntf = {
-      "id": id,
-    };
-    return this.post("openvpn/connect", body);
-  }
-
   public getStatus(id: number): Promise<null> {
     if (this.debug) {
       this.logger.debug(`${this.logID}getStatus >> id = ${id}`);

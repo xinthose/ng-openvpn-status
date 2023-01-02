@@ -85,9 +85,6 @@ export class ServerComponent implements OnInit {
         // get OpenVPN server from ID
         await this.getOpenvpnServer(this.serverID);
 
-        // connect to OpenVPN server
-        await this.serverService.connect(this.serverID);
-
         // get clients connected to server
         await this.getStatus(this.serverID);
       }

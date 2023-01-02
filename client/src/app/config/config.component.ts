@@ -133,9 +133,9 @@ export class ConfigComponent implements OnInit {
       this.submitLoading = true;
 
       // create submit data
-      const data: Array<OpenVPNserversIntf> = [];
+      const openVPNservers: Array<OpenVPNserversIntf> = [];
       for (const openVPNserver of this.openVPNserversGridData) {
-        data.push({
+        openVPNservers.push({
           "id": openVPNserver.id,
           "name": openVPNserver.name,
           "host": openVPNserver.host,
@@ -146,9 +146,9 @@ export class ConfigComponent implements OnInit {
       }
 
       // check if all server ID's are unique
-      const uniqueOpenVPNservers = new Set(data.map(openVPNserver => openVPNserver.id));
-      if (uniqueOpenVPNservers.size < data.length) {
-        this.logger.error(`${this.logID}submitConfig >> duplicates found >> uniqueFirebaseUsers.size = ${uniqueOpenVPNservers.size}; firebaseUsersWithEmail.length = ${data.length}`);
+      const uniqueOpenVPNservers = new Set(openVPNservers.map(openVPNserver => openVPNserver.id));
+      if (uniqueOpenVPNservers.size < openVPNservers.length) {
+        this.logger.error(`${this.logID}submitConfig >> duplicates found >> uniqueOpenVPNservers.size = ${uniqueOpenVPNservers.size}; openVPNservers.length = ${openVPNservers.length}`);
 
         // show popup
         this.notificationService.show({
@@ -169,8 +169,32 @@ export class ConfigComponent implements OnInit {
         return;
       }
 
+      // check if ID starts at 0 and is sequential
+      for (let index = 0; index < openVPNservers.length; index++) {
+        const openVPNserver = openVPNservers[index];
+        if (openVPNserver.id != index) {
+          // show popup
+          this.notificationService.show({
+            content: "ID must start at 0 and continue sequentially (e.g. 0,1,2,3...).",
+            cssClass: "notification",
+            position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+            type: { style: "warning", icon: false },  // none, success, error, warning, info
+            hideAfter: 3000,  // milliseconds
+            animation: {
+              type: "fade",
+              duration: 150, // milliseconds (notif)
+            },
+          });
+
+          // hide loading icon
+          this.submitLoading = false;
+
+          return;
+        }
+      }
+
       // submit data
-      await this.serverService.updateConfig(data);
+      await this.serverService.updateConfig(openVPNservers);
 
       // show popup
       this.notificationService.show({
@@ -196,7 +220,7 @@ export class ConfigComponent implements OnInit {
         cssClass: "notification",
         position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
         type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 10000,  // milliseconds
+        hideAfter: 5000,  // milliseconds
         animation: {
           type: "fade",
           duration: 150, // milliseconds (notif)
@@ -213,7 +237,7 @@ export class ConfigComponent implements OnInit {
 
     this.OpenVPNserversGridForm = this.formBuilder.group({
       "guid": [uuidv4()],
-      "id": [undefined, [Validators.required, Validators.min(1), Validators.max(99999)]],
+      "id": [undefined, [Validators.required, Validators.min(0), Validators.max(99999)]],
       "name": ["", [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": ["", [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [undefined, [Validators.required, Validators.min(1), Validators.max(65535)]],
@@ -233,7 +257,7 @@ export class ConfigComponent implements OnInit {
 
     this.OpenVPNserversGridForm = this.formBuilder.group({
       "guid": [data.guid],
-      "id": [data.id, [Validators.required, Validators.min(1), Validators.max(99999)]],
+      "id": [data.id, [Validators.required, Validators.min(0), Validators.max(99999)]],
       "name": [data.name, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": [data.host, [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [data.port, [Validators.required, Validators.min(1), Validators.max(65535)]],
