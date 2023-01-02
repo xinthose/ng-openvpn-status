@@ -11,6 +11,7 @@ import { firstValueFrom } from "rxjs";
 // interfaces
 import { LoginStatusIntf } from './interfaces/LoginStatusIntf';
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
+import { ServerIdIntf } from "./interfaces/ServerIdIntf";
 
 // Other
 import { environment } from '../environments/environment';
@@ -88,6 +89,29 @@ export class ServerService {
 
     return this.post("openvpn/updateConfig", openVPNservers);
   }
+
+  public connect(id: number): Promise<null> {
+    if (this.debug) {
+      this.logger.debug(`${this.logID}connect >> id = ${id}`);
+    }
+
+    const body: ServerIdIntf = {
+      "id": id,
+    };
+    return this.post("openvpn/connect", body);
+  }
+
+  public getStatus(id: number): Promise<null> {
+    if (this.debug) {
+      this.logger.debug(`${this.logID}getStatus >> id = ${id}`);
+    }
+
+    const body: ServerIdIntf = {
+      "id": id,
+    };
+    return this.post("openvpn/getStatus", body);
+  }
+
 }
 
 /* #endregion */
@@ -122,7 +146,7 @@ export class AuthService {
       windowResetEvents: ["mousemove", "keypress"],
       timeoutCallback: () => {
         if (this.debug) {
-          this.logger.debug(`${this.logID}startInactivityTimer >> inactivity limit reached`);
+          this.logger.debug(`${this.logID} startInactivityTimer >> inactivity limit reached`);
         }
 
         // show popup
@@ -152,7 +176,7 @@ export class AuthService {
       headers: new HttpHeaders({
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Authorization": `Bearer ${this.authToken}`,
+        "Authorization": `Bearer ${this.authToken} `,
       }),
     };
 

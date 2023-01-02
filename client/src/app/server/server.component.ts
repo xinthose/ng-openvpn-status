@@ -55,9 +55,7 @@ export class ServerComponent implements OnInit {
   ) {
     // get server ID from route
     this.serverID = Number(this.route.snapshot.params.id) || undefined;
-    if (this.serverID) {
-      this.getOpenvpnServer(this.serverID);
-    } else {
+    if (!this.serverID) {
       // show popup
       this.notificationService.show({
         content: "ID not found.",
@@ -76,11 +74,39 @@ export class ServerComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-    // set active class in navbar
-    setTimeout(() => {
-      this.authService.serverSelectedEvent.emit();
-    });
+  async ngOnInit() {
+    try {
+      // set active class in navbar
+      setTimeout(() => {
+        this.authService.serverSelectedEvent.emit();
+      });
+
+      if (this.serverID) {
+        // get OpenVPN server from ID
+        await this.getOpenvpnServer(this.serverID);
+
+        // connect to OpenVPN server
+        await this.serverService.connect(this.serverID);
+
+        // get clients connected to server
+        await this.getStatus(this.serverID);
+      }
+    } catch (error: any) {
+      this.clientsLoading = false;
+      this.logger.error(`${this.logID}ngOnInit >> error = ${error}`);
+      this.notificationService.show({
+        content: error.toString(),
+        closable: true,
+        cssClass: "notification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "error", icon: false },  // none, success, error, warning, info
+        hideAfter: 10000,  // milliseconds
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+    }
   }
 
   async getOpenvpnServer(id: number) {
@@ -115,6 +141,37 @@ export class ServerComponent implements OnInit {
     } catch (error: any) {
       this.clientsLoading = false;
       this.logger.error(`${this.logID}getConfig >> error = ${error}`);
+      this.notificationService.show({
+        content: error.toString(),
+        closable: true,
+        cssClass: "notification",
+        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
+        type: { style: "error", icon: false },  // none, success, error, warning, info
+        hideAfter: 10000,  // milliseconds
+        animation: {
+          type: "fade",
+          duration: 150, // milliseconds (notif)
+        },
+      });
+    }
+  }
+
+  async getStatus(id: number) {
+    try {
+      // show loading icon
+      this.clientsLoading = true;
+
+      // get servers from YAML config file
+      const response = await this.serverService.getStatus(id);
+      if (this.debug) {
+        this.logger.debug(`${this.logID}getStatus >> response = ${JSON.stringify(response)}`);
+      }
+
+      // hide loading icon
+      this.clientsLoading = false;
+    } catch (error: any) {
+      this.clientsLoading = false;
+      this.logger.error(`${this.logID}getStatus >> error = ${error}`);
       this.notificationService.show({
         content: error.toString(),
         closable: true,

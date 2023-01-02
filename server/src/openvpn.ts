@@ -2,7 +2,6 @@
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 import { ServerIdIntf } from "./interfaces/ServerIdIntf";
 
-
 // config
 import config from "./serverConfig.json";
 
@@ -30,6 +29,7 @@ export class Openvpn {
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
+        this.router.post("/connect", [this.connect.bind(this)]);
         this.router.post("/getStatus", [this.getStatus.bind(this)]);
     }
 
