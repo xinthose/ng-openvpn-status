@@ -10,7 +10,7 @@ import express, { Router, Request, Response } from "express";
 import winston from "winston";
 import { parse, stringify } from "yaml";
 import fs from "fs";
-import { Telnet } from "telnet-client";
+import { connect, Socket, TcpSocketConnectOpts, createConnection } from "net";
 
 export class Openvpn {
     private logID: string = "Openvpn.";
@@ -19,13 +19,11 @@ export class Openvpn {
     private logger: winston.Logger;
     public router: Router = express.Router();
     private fsPromises: any = fs.promises;
-    private telnet: Telnet;
+    private socket: Socket | undefined = undefined;
 
-    constructor(logger: winston.Logger, telnet: Telnet) {
+    constructor(logger: winston.Logger) {
         // set data
         this.logger = logger;
-        this.telnet = telnet;
-
 
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
@@ -117,38 +115,20 @@ export class Openvpn {
             }
 
             if (openvpnServer) {
-                // create connection config
-                const config = {
-                    "host": openvpnServer.host,
-                    "port": openvpnServer.port,
-                    // "loginPrompt": null,
-                    // "username": null,
-                    // "passwordPrompt": "ENTER PASSWORD:",
-                    // "loginPrompt": /ENTER PASSWORD:/i,
-                    // "shellPrompt": />/,
-                    "shellPrompt": null,
-                    // "username": "",
-                    // "password": openvpnServer.password,
-                    "timeout": openvpnServer.timeout,
-                    "debug": this.debug,
-                    "ors": "\r\n",
-                };
-                if (this.debug) {
-                    this.logger.error(`${this.logID}connect >> config = ${JSON.stringify(config)}`);
-                }
-
                 // connect
-                await this.telnet.connect(config);
-                // await this.telnet.exec(openvpnServer.password);
+                await this.connectSocket(openvpnServer.host, openvpnServer.port);
 
-                // login when connected
-                this.telnet.on("connect", () => {
-                    this.logger.debug(`${this.logID}connect >> connected`);
-                    this.telnet.write(openvpnServer.password);
-                });
+                // login
+                if (this.socket) {
+                    // send password
+                    await this.writeSocket(`${openvpnServer.password}\r\n`);    // return and newline required to submit the password
 
-                // return response data
-                res.status(200).json({ "message": "OK" });
+                    // return response data
+                    res.status(200).json({ "message": "OK" });
+                } else {
+                    this.logger.error(`${this.logID}connect >> socket was not created`);
+                    res.status(404).json({ "message": `Socket was not created.` })
+                }
             } else {
                 this.logger.error(`${this.logID}connect >> OpenVPN Server was not found by that ID: ${id}`);
                 res.status(404).json({ "message": `OpenVPN Server was not found by that ID: ${id}` })
@@ -168,7 +148,7 @@ export class Openvpn {
             }
             const id: number = body.id;
 
-            const status = await this.telnet.exec("status");
+            await this.writeSocket("status 3\r\n");
             if (this.debug) {
                 this.logger.debug(`${this.logID}connect >> status = ${JSON.stringify(status)}`);
             }
@@ -178,5 +158,47 @@ export class Openvpn {
             this.logger.error(`${this.logID}connect >> error = ${error}`);
             res.status(500).send(error);
         }
+    }
+
+    // utility 
+
+    public connectSocket(host: string, port: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            try {
+                this.socket = createConnection({
+                    "host": host,
+                    "port": port,
+                    "timeout": 5000,
+                }, () => {
+                    if (this.debug) {
+                        this.logger.error(`${this.logID}connectSocket >> connection created to ${host}:${port}`);
+                    }
+                    resolve();
+                });
+            } catch (error: any) {
+                this.logger.error(`${this.logID}connectSocket >> error = ${error}`);
+                reject(error.toString());
+            }
+        });
+    }
+
+    public writeSocket(data: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            try {
+                if (this.socket) {
+                    this.socket.write(data, () => {
+                        if (this.debug) {
+                            this.logger.error(`${this.logID}writeSocket >> data successfully written; data = ${data}`);
+                        }
+                        resolve();
+                    });
+                } else {
+                    throw new Error("socket is not defined");
+                }
+            } catch (error: any) {
+                this.logger.error(`${this.logID}writeSocket >> error = ${error}`);
+                reject(error.toString());
+            }
+        });
     }
 }

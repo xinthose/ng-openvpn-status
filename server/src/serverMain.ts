@@ -16,7 +16,6 @@ import winston, { LoggerOptions, level, format } from "winston";
 import fs from "fs";
 import { verify } from "jsonwebtoken";
 import cors from "cors";
-import { Telnet } from "telnet-client";
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer.";
@@ -50,7 +49,6 @@ export class OpenvpnServer {
         ],
     }
     private logger: winston.Logger;
-    private telnet: Telnet;
     // classes
     private openvpn: Openvpn;
     private auth: Authentication;
@@ -59,7 +57,6 @@ export class OpenvpnServer {
     constructor() {
         // initialize
         this.logger = winston.createLogger(this.loggerOptions);
-        this.telnet = new Telnet();
 
         // setup server
         this.app = express();
@@ -71,7 +68,7 @@ export class OpenvpnServer {
         this.app.disable("x-powered-by");   // prevent attackers from finding out that this app uses express
 
         // create classes
-        this.openvpn = new Openvpn(this.logger, this.telnet);
+        this.openvpn = new Openvpn(this.logger);
         this.auth = new Authentication(this.logger);
         this.utility = new Utility(this.logger);
 

@@ -217,7 +217,7 @@ export class ConfigComponent implements OnInit {
       "name": ["", [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": ["", [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [undefined, [Validators.required, Validators.min(1), Validators.max(65535)]],
-      "password": ["", [Validators.minLength(1), Validators.maxLength(255)]],
+      "password": ["", [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
       "timeout": ["", [Validators.required, Validators.min(1000), Validators.max(999999)]],
     });
     sender.addRow(this.OpenVPNserversGridForm);
@@ -237,7 +237,7 @@ export class ConfigComponent implements OnInit {
       "name": [data.name, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       "host": [data.host, [Validators.required, Validators.pattern(this.ipRegex)]],
       "port": [data.port, [Validators.required, Validators.min(1), Validators.max(65535)]],
-      "password": [data.password, [Validators.minLength(1), Validators.maxLength(255)]],
+      "password": [data.password, [Validators.required, Validators.minLength(1), Validators.maxLength(255)]],
       "timeout": [data.timeout, [Validators.required, Validators.min(1000), Validators.max(999999)]],
     });
 
