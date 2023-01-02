@@ -1,6 +1,7 @@
 // interfaces
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 import { ServerIdIntf } from "./interfaces/ServerIdIntf";
+import { Event } from './enum/Event';
 
 // config
 import config from "./serverConfig.json";
@@ -11,19 +12,22 @@ import winston from "winston";
 import { parse, stringify } from "yaml";
 import fs from "fs";
 import { connect, Socket, TcpSocketConnectOpts, createConnection } from "net";
+import { EventEmitter } from "events";
 
 export class Openvpn {
     private logID: string = "Openvpn.";
     private debug: boolean = config.debug;
     private localhostTesting: boolean = config.localhostTesting;
     private logger: winston.Logger;
+    public eventEmitter: EventEmitter;
     public router: Router = express.Router();
     private fsPromises: any = fs.promises;
     private socket: Socket | undefined = undefined;
 
-    constructor(logger: winston.Logger) {
+    constructor(logger: winston.Logger, eventEmitter: EventEmitter) {
         // set data
         this.logger = logger;
+        this.eventEmitter = eventEmitter;
 
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
@@ -217,19 +221,35 @@ export class Openvpn {
                         this.logger.debug(`${this.logID}setupSocketEvents >> data received; data = ${JSON.stringify(data)}`);
                     }
 
+                    // get items, split by new line, filter out empty elements
+                    const items: Array<string> = data.toString().split("\r\n").filter(item => item.length);
+                    if (this.debug) {
+                        this.logger.debug(`${this.logID}setupSocketEvents >> items = ${JSON.stringify(items)}`);
+                    }
                 });
 
                 this.socket.on("error", (err: Error) => {
+                    // log
                     this.logger.error(`${this.logID}setupSocketEvents >> error received; error = ${err}`);
 
+                    // emit event
+                    this.eventEmitter.emit(Event.SOCKET_ERROR);
                 });
 
                 this.socket.on("close", (hadError: boolean) => {
+                    // log
                     this.logger.error(`${this.logID}setupSocketEvents >> close received; hadError = ${hadError}`);
+
+                    // emit event
+                    this.eventEmitter.emit(Event.SOCKET_CLOSE);
                 });
 
                 this.socket.on("timeout", () => {
+                    // log
                     this.logger.error(`${this.logID}setupSocketEvents >> timeout received`);
+
+                    // emit event
+                    this.eventEmitter.emit(Event.SOCKET_TIMEOUT);
                 });
             } else {
                 throw new Error("socket is not defined");

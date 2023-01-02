@@ -40,7 +40,7 @@
 ## Server Installation
 
 - `npm init`
-- `npm i typescript express @types/express compression @types/compression ts-node gulp @types/gulp gulp-cli gulp-typescript gulp-json-editor del winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken cors @types/cors redis telnet-client yaml`
+- `npm i typescript express @types/express compression @types/compression ts-node gulp @types/gulp gulp-cli gulp-typescript gulp-json-editor del winston-loggly-bulk @types/winston-loggly-bulk winston jsonwebtoken @types/jsonwebtoken cors @types/cors redis telnet-client yaml ws @types/ws`
 
 ## Bench Testing
 

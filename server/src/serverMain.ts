@@ -8,14 +8,18 @@ import config from "./serverConfig.json";
 
 // interfaces
 import { WinstonLogLevelsEnum } from "./enum/WinstonLogLevelsEnum";
+import { WSeventIntf } from './interfaces/WSeventIntf';
+import { Event } from './enum/Event';
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
 import compression from "compression";
 import winston, { LoggerOptions, level, format } from "winston";
-import fs from "fs";
 import { verify } from "jsonwebtoken";
 import cors from "cors";
+import * as WebSocket from 'ws';
+import * as http from "http";
+import { EventEmitter } from "events";
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer.";
@@ -47,8 +51,11 @@ export class OpenvpnServer {
                 "options": config.production ? {} : { flags: "w" }, // overwrite log file for testing
             }),
         ],
-    }
+    };
     private logger: winston.Logger;
+    private server: http.Server;
+    private wss: WebSocket.Server;
+    private eventEmitter: EventEmitter = new EventEmitter();
     // classes
     private openvpn: Openvpn;
     private auth: Authentication;
@@ -68,7 +75,7 @@ export class OpenvpnServer {
         this.app.disable("x-powered-by");   // prevent attackers from finding out that this app uses express
 
         // create classes
-        this.openvpn = new Openvpn(this.logger);
+        this.openvpn = new Openvpn(this.logger, this.eventEmitter);
         this.auth = new Authentication(this.logger);
         this.utility = new Utility(this.logger);
 
@@ -88,11 +95,21 @@ export class OpenvpnServer {
             res.status(200).sendFile(`/`, { root: this.appFolder });
         });
 
-        // start listening (call last)
-        this.app.listen(this.port, () => {
-            this.logger.info(`${this.logID}constructor >> server listening on port ${this.port}`);
-        });
+        // create server
+        this.server = http.createServer(this.app);
 
+        // create the WebSocket server
+        this.wss = new WebSocket.Server({
+            server: this.server,
+        });
+        this.setupWS();
+
+        // tell server to listen (including web socket)
+        this.server.listen(this.port, () => {
+            this.logger.info(`${this.logID}constructor >> Running http server on port ${this.port}`);
+        }).on("error", (err: Error) => {
+            this.logger.error(`${this.logID}http server listen error = message = ${err.message}`);
+        });
 
         // log
         this.logger.info(`${this.logID}constructor >> app initialized`);
@@ -100,6 +117,85 @@ export class OpenvpnServer {
 
 
     // utility
+
+    private setupWS() {
+        this.wss.on("connection", (ws: WebSocket, req: any) => {
+            // get IP address of client
+            const ip: string = req.socket.remoteAddress;
+
+            // log
+            this.logger.info(`${this.logID}setupWS >> client connected >> IP address = ${ip}`);
+
+            // listen for events in sub-classes
+            this.eventEmitter.on(Event.SOCKET_ERROR, () => {
+                ws.send("socketError");
+            });
+            this.eventEmitter.on(Event.SOCKET_CLOSE, () => {
+                ws.send("socketClose");
+            });
+            this.eventEmitter.on(Event.SOCKET_TIMEOUT, () => {
+                ws.send("socketTimeout");
+            });
+
+            // listen for events from clients
+            ws.on("message", (message: string) => {
+                if (this.debug) {
+                    this.logger.debug(`${this.logID}setupWS >> client message received >> message = ${message}`);
+                }
+
+                // get data
+                let data: WSeventIntf;
+                try {
+                    data = JSON.parse(message);
+                } catch (error: any) {
+                    this.logger.error(`${this.logID}setupWS >> JSON.parse error on client message >> message = ${message}`);
+                    return;
+                }
+
+                // handle data
+                switch (data.event) {
+                    case "newClient":
+                        this.logger.info(`${this.logID}setupWS >> new client >> IP = ${data.message}`);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            ws.on("close", () => {
+                this.logger.info(`${this.logID}setupWS >> client disconnected`);
+            });
+            ws.on("error", (error: Error) => {
+                this.logger.info(`${this.logID}setupWS >> client error = error = ${error.message}`);
+            });
+        });
+    }
+
+    // other
+
+    public shutdownServer(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            // shutdown server
+            this.server.close((err: Error | undefined) => {
+                if (err) {
+                    this.logger.error(`${this.logID}shutdownServer >> server.close >> error = ${err.message}`);
+                } else {
+                    this.logger.info(`${this.logID}shutdownServer >> http server shutdown`);
+                }
+
+                // close websocket server
+                this.wss.close((err: Error | undefined) => {
+                    if (err) {
+                        this.logger.error(`${this.logID}shutdownServer >> wss.close >> error = ${err.message}`);
+                    } else {
+                        this.logger.info(`${this.logID}shutdownServer >> websocket server shutdown`);
+                    }
+
+                    // return
+                    resolve();
+                });
+            });
+        });
+    }
 
     private async checkAuth(req: Request, res: Response, next: NextFunction) {
         let from: string = "";
