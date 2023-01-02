@@ -12,8 +12,8 @@ import { AuthService, ServerService } from "../server.service";
 import { SortDescriptor } from "@progress/kendo-data-query";
 
 // interfaces
-import { OpenVPNserversIntf } from "../interfaces/OpenVPNservers.interface";
-import { OpenVPNserversGridIntf } from "../interfaces/OpenVPNserversGrid.interface";
+import { OpenVPNserversIntf } from "../interfaces/OpenVPNserversIntf";
+import { OpenVPNserversGridIntf } from "../interfaces/OpenVPNserversGridIntf";
 
 // Icons
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';

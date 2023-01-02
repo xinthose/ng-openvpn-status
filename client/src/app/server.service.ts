@@ -9,8 +9,8 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { firstValueFrom } from "rxjs";
 
 // interfaces
-import { LoginStatusIntf } from './interfaces/LoginStatus.interface';
-import { OpenVPNserversIntf } from "./interfaces/OpenVPNservers.interface";
+import { LoginStatusIntf } from './interfaces/LoginStatusIntf';
+import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 
 // Other
 import { environment } from '../environments/environment';

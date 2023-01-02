@@ -1,5 +1,6 @@
 // interfaces
-import { OpenVPNserversIntf } from "./interfaces/OpenVPNservers.interface";
+import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
+import { ServerIdIntf } from "./interfaces/ServerIdIntf";
 
 
 // config
@@ -28,6 +29,8 @@ export class Openvpn {
 
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
+        this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
+        this.router.post("/getStatus", [this.getStatus.bind(this)]);
     }
 
     private async getConfig(req: Request, res: Response) {
@@ -86,7 +89,7 @@ export class Openvpn {
     private async connect(req: Request, res: Response) {
         try {
             // get data
-            const body: { "id": number } = req.body;
+            const body: ServerIdIntf = req.body;
             if (this.debug) {
                 this.logger.debug(`${this.logID}connect >> body = ${JSON.stringify(body)}`);
             }
@@ -118,15 +121,33 @@ export class Openvpn {
                     "timeout": openvpnServer.timeout,
                 });
 
-                // 
-                const result = await this.telnet.exec('uptime');
-
                 // return response data
                 res.status(200).json({ "message": "OK" });
             } else {
                 this.logger.error(`${this.logID}connect >> OpenVPN Server was not found by that ID: ${id}`);
                 res.status(404).json({ "message": `OpenVPN Server was not found by that ID: ${id}` })
             }
+        } catch (error: any) {
+            this.logger.error(`${this.logID}connect >> error = ${error}`);
+            res.status(500).send(error);
+        }
+    }
+
+    private async getStatus(req: Request, res: Response) {
+        try {
+            // get data
+            const body: ServerIdIntf = req.body;
+            if (this.debug) {
+                this.logger.debug(`${this.logID}connect >> body = ${JSON.stringify(body)}`);
+            }
+            const id: number = body.id;
+
+            const status = await this.telnet.exec("status");
+            if (this.debug) {
+                this.logger.debug(`${this.logID}connect >> status = ${JSON.stringify(status)}`);
+            }
+
+            res.status(200).send(status);
         } catch (error: any) {
             this.logger.error(`${this.logID}connect >> error = ${error}`);
             res.status(500).send(error);

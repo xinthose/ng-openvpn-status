@@ -7,7 +7,7 @@ import { AuthService, ServerService } from "./server.service";
 import { NotificationService } from "@progress/kendo-angular-notification";
 
 // interfaces
-import { OpenVPNserversIntf } from "./interfaces/OpenVPNservers.interface";
+import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 
 // rxjs
 import { Subscription } from "rxjs";

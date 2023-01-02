@@ -10,8 +10,8 @@ import { GridDataResult } from "@progress/kendo-angular-grid";
 import { SortDescriptor, orderBy } from "@progress/kendo-data-query";
 
 // interfaces
-import { ClientsIntf } from "../interfaces/Clients.interface";
-import { OpenVPNserversIntf } from "../interfaces/OpenVPNservers.interface";
+import { ClientsIntf } from "../interfaces/ClientsIntf";
+import { OpenVPNserversIntf } from "../interfaces/OpenVPNserversIntf";
 
 // Icons
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
