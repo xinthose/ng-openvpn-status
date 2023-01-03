@@ -23,6 +23,8 @@ export class Openvpn {
     public router: Router = express.Router();
     private fsPromises: any = fs.promises;
     private sockets: Array<Socket> | undefined = undefined;
+    // timeouts
+    private callConnectTimeout!: NodeJS.Timeout;
 
     constructor(logger: winston.Logger, eventEmitter: EventEmitter) {
         // set data
@@ -35,7 +37,7 @@ export class Openvpn {
         this.router.post("/getStatus", [this.getStatus.bind(this)]);
 
         // connect to servers
-        this.connect();
+        this.callConnect();
     }
 
     private async getConfig(req: Request, res: Response) {
@@ -118,6 +120,16 @@ export class Openvpn {
     }
 
     // utility 
+
+    private async callConnect(): Promise<void> {
+        try {
+            this.logger.debug("mark1")
+            await this.connect();
+        } catch (error: any) {
+            this.logger.error(`${this.logID}callConnect >> error = ${error}`);
+            this.callConnectTimeout = setTimeout(this.callConnect.bind(this), 10000);
+        }
+    }
 
     private async connect() {
         try {
