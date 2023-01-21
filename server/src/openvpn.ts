@@ -11,7 +11,6 @@ import express, { Router, Request, Response } from "express";
 import winston from "winston";
 import { parse, stringify } from "yaml";
 import fs from "fs";
-import { Socket, createConnection } from "net";
 import { EventEmitter } from "events";
 
 export class Openvpn {
@@ -22,9 +21,6 @@ export class Openvpn {
     public eventEmitter: EventEmitter;
     public router: Router = express.Router();
     private fsPromises: any = fs.promises;
-    private sockets: Array<Socket> | undefined = undefined;
-    // timeouts
-    private callConnectTimeout!: NodeJS.Timeout;
 
     constructor(logger: winston.Logger, eventEmitter: EventEmitter) {
         // set data
@@ -37,7 +33,7 @@ export class Openvpn {
         this.router.post("/getStatus", [this.getStatus.bind(this)]);
 
         // connect to servers
-        this.callConnect();
+        this.connect();
     }
 
     private async getConfig(req: Request, res: Response) {
@@ -89,7 +85,7 @@ export class Openvpn {
             await this.disconnect();
 
             // connect again
-            await this.connect();
+            await this.callConnect();
 
             // return response data
             res.status(200).json({ "message": "OK" });
@@ -121,16 +117,6 @@ export class Openvpn {
 
     // utility 
 
-    private async callConnect(): Promise<void> {
-        try {
-            this.logger.debug("mark1")
-            await this.connect();
-        } catch (error: any) {
-            this.logger.error(`${this.logID}callConnect >> error = ${error}`);
-            this.callConnectTimeout = setTimeout(this.callConnect.bind(this), 10000);
-        }
-    }
-
     private async connect() {
         try {
             // get yaml file
@@ -154,162 +140,12 @@ export class Openvpn {
 
                 // connect to servers
                 for (const openvpnServer of openvpnServers) {
-                    // connect; order of creation is based on index, which matches ID
-                    await this.connectSocket(openvpnServer.host, openvpnServer.port, openvpnServer.timeout);
 
-                    // handle
-                    this.setupSocketEvents(openvpnServer.id);
-
-                    // send password
-                    await this.writeSocket(openvpnServer.id, `${openvpnServer.password}\r\n`);    // return and newline required to submit the password
-
-                    // request real-time notification of OpenVPN bandwidth usage every 5 seconds
-                    await this.writeSocket(openvpnServer.id, "bytecount 5\r\n");
                 }
             }
         } catch (error: any) {
             this.logger.error(`${this.logID}connect >> error = ${error}`);
-            throw new Error(error.toString());
         }
     }
 
-    private async disconnect() {
-        try {
-            if (this.sockets) {
-                for (let index = 0; index < this.sockets.length; index++) {
-                    await this.endSocket(index);
-                    this.sockets[index].destroy();
-                    if (this.debug) {
-                        this.logger.debug(`${this.logID}disconnect >> connection closed to socket #${index}`);
-                    }
-                }
-            }
-        } catch (error: any) {
-            this.logger.error(`${this.logID}connect >> error = ${error}`);
-            throw new Error(error.toString());
-        }
-    }
-
-    private connectSocket(host: string, port: number, timeout: number): Promise<void> {
-        return new Promise((resolve, reject) => {
-            try {
-                if (this.sockets) {
-                    this.sockets.push(createConnection({
-                        "host": host,
-                        "port": port,
-                        "timeout": timeout,
-                    }, () => {
-                        if (this.debug) {
-                            this.logger.debug(`${this.logID}connectSocket >> connection created to ${host}:${port}`);
-                        }
-                        resolve();
-                    }));
-                } else {
-                    throw new Error("sockets is not defined");
-                }
-            } catch (error: any) {
-                this.logger.error(`${this.logID}connectSocket >> error = ${error}`);
-                reject(error.toString());
-            }
-        });
-    }
-
-    private writeSocket(id: number, data: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            try {
-                if (this.sockets) {
-                    if (this.sockets[id]) {
-                        this.sockets[id].write(data, () => {
-                            if (this.debug) {
-                                this.logger.debug(`${this.logID}writeSocket >> data successfully written; id = ${id}; data = ${data}`);
-                            }
-                            resolve();
-                        });
-                    } else {
-                        throw new Error(`socket is not defined; id = ${id}`);
-                    }
-                } else {
-                    throw new Error("sockets is not defined");
-                }
-            } catch (error: any) {
-                this.logger.error(`${this.logID}writeSocket >> error = ${error}`);
-                reject(error.toString());
-            }
-        });
-    }
-
-    private setupSocketEvents(id: number) {
-        try {
-            if (this.sockets) {
-                if (this.sockets[id]) {
-                    this.sockets[id].on("data", (data: Buffer) => {
-                        if (this.debug) {
-                            this.logger.debug(`${this.logID}setupSocketEvents >> data received; id = ${id}; data = ${JSON.stringify(data)}`);
-                        }
-
-                        // get items, split by new line, filter out empty elements
-                        const items: Array<string> = data.toString().split("\r\n").filter(item => item.length);
-                        if (this.debug) {
-                            this.logger.debug(`${this.logID}setupSocketEvents >> id = ${id}; items = ${JSON.stringify(items)}`);
-                        }
-                    });
-
-                    this.sockets[id].on("error", (err: Error) => {
-                        // log
-                        this.logger.error(`${this.logID}setupSocketEvents >> error received; id = ${id}; error = ${err}`);
-
-                        // emit event
-                        this.eventEmitter.emit(Event.SOCKET_ERROR);
-                    });
-
-                    this.sockets[id].on("close", (hadError: boolean) => {
-                        // log
-                        this.logger.error(`${this.logID}setupSocketEvents >> close received; id = ${id}; hadError = ${hadError}`);
-
-                        // emit event
-                        this.eventEmitter.emit(Event.SOCKET_CLOSE);
-                    });
-
-                    this.sockets[id].on("timeout", () => {
-                        // log
-                        this.logger.error(`${this.logID}setupSocketEvents >> timeout received; id = ${id}`);
-
-                        // emit event
-                        this.eventEmitter.emit(Event.SOCKET_TIMEOUT);
-                    });
-                } else {
-                    throw new Error(`socket is not defined; id = ${id}`);
-                }
-            } else {
-                throw new Error("sockets is not defined");
-            }
-        } catch (error: any) {
-            this.logger.error(`${this.logID}setupSocketEvents >> error = ${error}`);
-            throw new Error(error.toString());
-        }
-    }
-
-    private endSocket(id: number): Promise<void> {
-        return new Promise((resolve, reject) => {
-            try {
-                if (this.sockets) {
-                    if (this.sockets[id]) {
-                        this.sockets[id].end(() => {
-                            if (this.debug) {
-                                this.logger.debug(`${this.logID}endSocket >> socket closed; id = ${id}`);
-                            }
-                            resolve();
-                        });
-                    } else {
-                        throw new Error(`socket is not defined; id = ${id}`);
-                    }
-                } else {
-                    throw new Error("sockets is not defined");
-                }
-            } catch (error: any) {
-                this.logger.error(`${this.logID}endSocket >> error = ${error}`);
-                reject(error.toString());
-            }
-        });
-    }
 }
