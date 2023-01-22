@@ -189,7 +189,6 @@ export class OpenvpnServer {
         }
     }
 
-
     private endSocket(): Promise<void> {
         return new Promise((resolve, reject) => {
             if (this.socket) {

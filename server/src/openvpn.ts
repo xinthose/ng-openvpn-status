@@ -117,7 +117,7 @@ export class Openvpn {
             const id: number = body.id;
 
             // send command
-            await this.writeSocket(id, "status 3\r\n"); // Show status information using the format of --status - version 3
+            await this.openvpnServers[id].writeSocket("status 3\r\n"); // Show status information using the format of --status - version 3
 
             // return OK
             res.status(200).json({ "message": "OK" });
