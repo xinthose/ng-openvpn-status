@@ -1,3 +1,6 @@
+// classes
+import { OpenvpnServer } from "./OpenvpnServer";
+
 // interfaces
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 import { ServerIdIntf } from "./interfaces/ServerIdIntf";
@@ -21,6 +24,7 @@ export class Openvpn {
     public eventEmitter: EventEmitter;
     public router: Router = express.Router();
     private fsPromises: any = fs.promises;
+    private openvpnServers: Array<OpenvpnServer> = [];
 
     constructor(logger: winston.Logger, eventEmitter: EventEmitter) {
         // set data
@@ -81,11 +85,19 @@ export class Openvpn {
                 await this.fsPromises.writeFile("./openVPNservers.yaml", yamlStr);
             }
 
-            // disconnect from servers
-            await this.disconnect();
+            // tell OpenVPN Server classes to shutdown
+            this.eventEmitter.emit(Event.SOCKET_SHUTDOWN);
+
+            // shutdown servers
+            for (const openvpnServer of this.openvpnServers) {
+                await openvpnServer.shutdown();
+            }
+
+            // clear array of servers
+            this.openvpnServers = [];
 
             // connect again
-            await this.callConnect();
+            await this.connect();
 
             // return response data
             res.status(200).json({ "message": "OK" });
@@ -128,19 +140,16 @@ export class Openvpn {
             }
 
             // parse the file
-            const openvpnServers: Array<OpenVPNserversIntf> = await parse(file);
+            const serversConfig: Array<OpenVPNserversIntf> = await parse(file);
             if (this.debug) {
-                this.logger.debug(`${this.logID}connect >> openvpnServers = ${JSON.stringify(openvpnServers)}`);
+                this.logger.debug(`${this.logID}connect >> serversConfig = ${JSON.stringify(serversConfig)}`);
             }
 
-            // handle
-            if (openvpnServers) {
-                // clear sockets array
-                this.sockets = [];
-
-                // connect to servers
-                for (const openvpnServer of openvpnServers) {
-
+            // create OpenVPN server classes
+            if (serversConfig) {
+                for (const serverConfig of serversConfig) {
+                    // index matches server ID
+                    this.openvpnServers.push(new OpenvpnServer(this.logger, this.eventEmitter, serverConfig));
                 }
             }
         } catch (error: any) {

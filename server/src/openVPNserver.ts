@@ -33,7 +33,41 @@ export class OpenvpnServer {
         this.connect();
     }
 
-    // utility 
+    // public
+
+    public writeSocket(data: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            try {
+                if (this.socket) {
+                    this.socket.write(data, () => {
+                        if (this.debug) {
+                            this.logger.debug(`${this.logID}writeSocket >> data successfully written; data = ${data}`);
+                        }
+                        resolve();
+                    });
+                } else {
+                    throw new Error("socket is not defined");
+                }
+            } catch (error: any) {
+                this.logger.error(`${this.logID}writeSocket >> error = ${error}`);
+                reject(error.toString());
+            }
+        });
+    }
+
+    public async shutdown() {
+        try {
+            if (this.socket) {
+                this.socket.removeAllListeners();
+            }
+
+            await this.endSocket();
+        } catch (error: any) {
+            this.logger.error(`${this.logID}shutdown >> error = ${error}`);
+        }
+    }
+
+    // private 
 
     private connect() {
         // connect to server
@@ -155,25 +189,6 @@ export class OpenvpnServer {
         }
     }
 
-    private writeSocket(data: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            try {
-                if (this.socket) {
-                    this.socket.write(data, () => {
-                        if (this.debug) {
-                            this.logger.debug(`${this.logID}writeSocket >> data successfully written; data = ${data}`);
-                        }
-                        resolve();
-                    });
-                } else {
-                    throw new Error("socket is not defined");
-                }
-            } catch (error: any) {
-                this.logger.error(`${this.logID}writeSocket >> error = ${error}`);
-                reject(error.toString());
-            }
-        });
-    }
 
     private endSocket(): Promise<void> {
         return new Promise((resolve, reject) => {
