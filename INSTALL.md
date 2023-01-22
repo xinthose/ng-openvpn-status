@@ -7,10 +7,10 @@
 - Add this line to your config file: `management 127.0.0.1 7505 pw-file`
   - `127.0.0.1`: only allows connections to the management interface from programs running on this computer locally (for security)
     - you can change this to `0.0.0.0` to allow connections from outside of the computer
-  - `7505`: any port not being used on this computer, use different ports for multiple OpenVPN servers running on the same computer
+  - `7505`: any port not being used on this computer, use different ports for multiple OpenVPN servers running on the same computer, only one application can connect over this port at a time
   - `pw-file` is a file that only contains your password with no spaces or new lines in the same directory as the config file
     - I recommend using a random password generator tool like [LastPass](https://www.lastpass.com/features/password-generator#generatorTool) to create your password
-- save the config file and restart your OpenVPN service (will close all current connections)
+- save the config file and restart your OpenVPN service.  This will close all current OpenVPN connections to the server.  They should automatically reconnect on their own.
   - Linux: `service openvpn restart`
   - Windows: open the `Services` app, find `OpenVPNService`, right click it and tell it to restart
 

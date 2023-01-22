@@ -14,6 +14,7 @@ import { EventEmitter } from "events";
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer";
     private debug: boolean = config.debug;
+    private advDebug: boolean = config.advDebug;
     private logger: winston.Logger;
     private eventEmitter: EventEmitter;
     private openVPNserver: OpenVPNserversIntf;
@@ -104,7 +105,7 @@ export class OpenvpnServer {
             if (this.socket) {
                 this.socket.once("error", (error: Error) => {
                     // log
-                    this.logger.error(`${this.logID}constructor >> connection error >> error = ${error}`);
+                    this.logger.error(`${this.logID}setHandlers >> connection error >> error = ${error}`);
 
                     // emit event
                     this.eventEmitter.emit(`${Event.SOCKET_ERROR}_${this.openVPNserver.id}`);
@@ -117,7 +118,7 @@ export class OpenvpnServer {
                 this.socket.once("connect", async () => {
                     try {
                         // log
-                        this.logger.info(`${this.logID}constructor >> connected`);
+                        this.logger.info(`${this.logID}setHandlers >> connected`);
 
                         // send password
                         await this.writeSocket(`${this.openVPNserver.password}\r\n`);    // return and newline required to submit the password
@@ -135,7 +136,7 @@ export class OpenvpnServer {
 
                 this.socket.once("close", (hadError: boolean) => {
                     // log
-                    this.logger.error(`${this.logID}constructor >> connection closeed >> hadError = ${hadError}`);
+                    this.logger.error(`${this.logID}setHandlers >> connection closeed >> hadError = ${hadError}`);
 
                     // emit event
                     this.eventEmitter.emit(`${Event.SOCKET_CLOSE}_${this.openVPNserver.id}`);
@@ -147,7 +148,7 @@ export class OpenvpnServer {
 
                 this.socket.once("end", () => {
                     // log
-                    this.logger.error(`${this.logID}constructor >> connection ended`);
+                    this.logger.error(`${this.logID}setHandlers >> connection ended`);
 
                     // emit event
                     this.eventEmitter.emit(`${Event.SOCKET_CLOSE}_${this.openVPNserver.id}`);
@@ -159,7 +160,7 @@ export class OpenvpnServer {
 
                 this.socket.once("timeout", () => {
                     // log
-                    this.logger.error(`${this.logID}constructor >> connection timeout`);
+                    this.logger.error(`${this.logID}setHandlers >> connection timeout`);
 
                     // emit event
                     this.eventEmitter.emit(`${Event.SOCKET_TIMEOUT}_${this.openVPNserver.id}`);
@@ -172,13 +173,26 @@ export class OpenvpnServer {
                 this.socket.on("data", (data: Buffer) => {
                     // log
                     if (this.debug) {
-                        this.logger.debug(`${this.logID}constructor >> data = ${JSON.stringify(data)}`);
+                        this.logger.debug(`${this.logID}setHandlers >> data = ${data.toString()}`);
                     }
 
                     // get items, split by new line, filter out empty elements
                     const items: Array<string> = data.toString().split("\r\n").filter(item => item.length);
-                    if (this.debug) {
-                        this.logger.debug(`${this.logID}setupSocketEvents >> items = ${JSON.stringify(items)}`);
+                    for (const item of items) {
+                        if (item.startsWith(">")) { // command response
+                            const itemSplit: Array<string> = item.split(":");
+                            switch (itemSplit[0]) {
+                                case ">BYTECOUNT_CLI": {
+                                    // >BYTECOUNT_CLI:85,7222360,77293927
+
+                                    break;
+                                }
+                                default: {
+                                    this.logger.error(`${this.logID}setHandlers >> itemSplit unhandled >> itemSplit[0] = ${itemSplit[0]}`);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 });
             } else {
