@@ -2,6 +2,7 @@
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 import { ServerIdIntf } from "./interfaces/ServerIdIntf";
 import { Event } from './enum/Event';
+import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
 
 // config
 import config from "./serverConfig.json";
@@ -180,15 +181,35 @@ export class OpenvpnServer {
                     const items: Array<string> = data.toString().split("\r\n").filter(item => item.length);
                     for (const item of items) {
                         if (item.startsWith(">")) { // command response
-                            const itemSplit: Array<string> = item.split(":");
-                            switch (itemSplit[0]) {
-                                case ">BYTECOUNT_CLI": {
+                            // get command and its response
+                            const command: string = item.substring(item.indexOf(">"), item.indexOf(":"));
+                            const commandResponse: string = item.substring(item.indexOf(":"));
+
+                            // handle command
+                            switch (command) {
+                                case "BYTECOUNT_CLI": {
                                     // >BYTECOUNT_CLI:85,7222360,77293927
+
+                                    // split string 
+                                    const byteCountArr: Array<string> = commandResponse.split(",");
+
+                                    if (byteCountArr.length == 3) {
+                                        // create data
+                                        const data: WSbyteCountIntf = {
+                                            "serverID": this.openVPNserver.id,
+                                            "clientID": Number(byteCountArr[0]),
+                                            "bytesReceived": Number(byteCountArr[1]),	// from client
+                                            "bytesSent": Number(byteCountArr[2]),		// to client
+                                        }
+
+                                        // emit event
+                                        this.eventEmitter.emit(Event.BYTECOUNT_CLI, data);
+                                    }
 
                                     break;
                                 }
                                 default: {
-                                    this.logger.error(`${this.logID}setHandlers >> itemSplit unhandled >> itemSplit[0] = ${itemSplit[0]}`);
+                                    this.logger.error(`${this.logID}setHandlers >> command unhandled >> command = ${command}`);
                                     break;
                                 }
                             }

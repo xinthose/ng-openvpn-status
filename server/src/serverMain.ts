@@ -8,7 +8,7 @@ import config from "./serverConfig.json";
 
 // interfaces
 import { WinstonLogLevelsEnum } from "./enum/WinstonLogLevelsEnum";
-import { WSeventIntf } from './interfaces/WSeventIntf';
+import { WSclientEventIntf } from './interfaces/websocket/WSclientEventIntf';
 import { Event } from './enum/Event';
 
 // libraries
@@ -144,7 +144,7 @@ export class OpenvpnServer {
                 }
 
                 // get data
-                let data: WSeventIntf;
+                let data: WSclientEventIntf;
                 try {
                     data = JSON.parse(message);
                 } catch (error: any) {

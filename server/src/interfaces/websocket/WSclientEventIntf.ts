@@ -1,4 +1,4 @@
-export interface WSeventIntf {
+export interface WSclientEventIntf {
 	"event": string,
 	"message": string,
 };
