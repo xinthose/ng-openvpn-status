@@ -8,8 +8,9 @@ import config from "./serverConfig.json";
 
 // interfaces
 import { WinstonLogLevelsEnum } from "./enum/WinstonLogLevelsEnum";
-import { WSclientEventIntf } from './interfaces/websocket/WSclientEventIntf';
+import { WSeventIntf } from './interfaces/websocket/WSeventIntf';
 import { Event } from './enum/Event';
+import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
@@ -115,7 +116,6 @@ export class OpenvpnServer {
         this.logger.info(`${this.logID}constructor >> app initialized`);
     }
 
-
     // utility
 
     private setupWS() {
@@ -127,14 +127,33 @@ export class OpenvpnServer {
             this.logger.info(`${this.logID}setupWS >> client connected >> IP address = ${ip}`);
 
             // listen for events in sub-classes
-            this.eventEmitter.on(Event.SOCKET_ERROR, () => {
-                ws.send("socketError");
+            this.eventEmitter.on(Event.SOCKET_ERROR, (serverID: number) => {
+                const data: WSeventIntf = {
+                    "event": Event.SOCKET_ERROR,
+                    "message": serverID,
+                }
+                ws.send(JSON.stringify(data));
             });
-            this.eventEmitter.on(Event.SOCKET_CLOSE, () => {
-                ws.send("socketClose");
+            this.eventEmitter.on(Event.SOCKET_CLOSE, (serverID: number) => {
+                const data: WSeventIntf = {
+                    "event": Event.SOCKET_CLOSE,
+                    "message": serverID,
+                }
+                ws.send(JSON.stringify(data));
             });
-            this.eventEmitter.on(Event.SOCKET_TIMEOUT, () => {
-                ws.send("socketTimeout");
+            this.eventEmitter.on(Event.SOCKET_TIMEOUT, (serverID: number) => {
+                const data: WSeventIntf = {
+                    "event": Event.SOCKET_TIMEOUT,
+                    "message": serverID,
+                }
+                ws.send(JSON.stringify(data));
+            });
+            this.eventEmitter.on(Event.BYTECOUNT_CLI, (wsByteCount: WSbyteCountIntf) => {
+                const data: WSeventIntf = {
+                    "event": Event.BYTECOUNT_CLI,
+                    "message": wsByteCount,
+                }
+                ws.send(JSON.stringify(data));
             });
 
             // listen for events from clients
@@ -144,7 +163,7 @@ export class OpenvpnServer {
                 }
 
                 // get data
-                let data: WSclientEventIntf;
+                let data: WSeventIntf;
                 try {
                     data = JSON.parse(message);
                 } catch (error: any) {

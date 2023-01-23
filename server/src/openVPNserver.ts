@@ -109,7 +109,7 @@ export class OpenvpnServer {
                     this.logger.error(`${this.logID}setHandlers >> connection error >> error = ${error}`);
 
                     // emit event
-                    this.eventEmitter.emit(`${Event.SOCKET_ERROR}_${this.openVPNserver.id}`);
+                    this.eventEmitter.emit(Event.SOCKET_ERROR, this.openVPNserver.id);
 
                     // reconnect
                     clearTimeout(this.reconnectTimeout);    // clear current call to reconnect (to avoid stacking up)
@@ -125,7 +125,8 @@ export class OpenvpnServer {
                         await this.writeSocket(`${this.openVPNserver.password}\r\n`);    // return and newline required to submit the password
 
                         // request real-time notification of OpenVPN bandwidth usage every 5 seconds
-                        await this.writeSocket("bytecount 5\r\n");
+                        //await this.writeSocket("bytecount 5\r\n");
+                        await this.writeSocket("status 3\r\n");
                     } catch (error) {
                         this.logger.error(`${this.logID}setHandlers >> connect >> error = ${error}`);
 
@@ -140,7 +141,7 @@ export class OpenvpnServer {
                     this.logger.error(`${this.logID}setHandlers >> connection closeed >> hadError = ${hadError}`);
 
                     // emit event
-                    this.eventEmitter.emit(`${Event.SOCKET_CLOSE}_${this.openVPNserver.id}`);
+                    this.eventEmitter.emit(Event.SOCKET_CLOSE, this.openVPNserver.id);
 
                     // reconnect
                     clearTimeout(this.reconnectTimeout);    // clear current call to reconnect (to avoid stacking up)
@@ -152,7 +153,7 @@ export class OpenvpnServer {
                     this.logger.error(`${this.logID}setHandlers >> connection ended`);
 
                     // emit event
-                    this.eventEmitter.emit(`${Event.SOCKET_CLOSE}_${this.openVPNserver.id}`);
+                    this.eventEmitter.emit(Event.SOCKET_CLOSE, this.openVPNserver.id);
 
                     // reconnect
                     clearTimeout(this.reconnectTimeout);    // clear current call to reconnect (to avoid stacking up)
@@ -164,7 +165,7 @@ export class OpenvpnServer {
                     this.logger.error(`${this.logID}setHandlers >> connection timeout`);
 
                     // emit event
-                    this.eventEmitter.emit(`${Event.SOCKET_TIMEOUT}_${this.openVPNserver.id}`);
+                    this.eventEmitter.emit(Event.SOCKET_TIMEOUT, this.openVPNserver.id);
 
                     // reconnect
                     clearTimeout(this.reconnectTimeout);    // clear current call to reconnect (to avoid stacking up)
@@ -173,12 +174,17 @@ export class OpenvpnServer {
 
                 this.socket.on("data", (data: Buffer) => {
                     // log
-                    if (this.debug) {
+                    if (this.advDebug) {
                         this.logger.debug(`${this.logID}setHandlers >> data = ${data.toString()}`);
                     }
 
                     // get items, split by new line, filter out empty elements
                     const items: Array<string> = data.toString().split("\r\n").filter(item => item.length);
+                    if (this.debug) {
+                        this.logger.debug(`${this.logID}setHandlers >> items = ${JSON.stringify(items)}`);
+                    }
+
+                    // handle items
                     for (const item of items) {
                         if (item.startsWith(">")) { // command response
                             // get command and its response
@@ -187,7 +193,7 @@ export class OpenvpnServer {
 
                             // handle command
                             switch (command) {
-                                case "BYTECOUNT_CLI": {
+                                case "BYTECOUNT_CLI": { // from bytecount command
                                     // >BYTECOUNT_CLI:85,7222360,77293927
 
                                     // split string 
@@ -206,6 +212,12 @@ export class OpenvpnServer {
                                         this.eventEmitter.emit(Event.BYTECOUNT_CLI, data);
                                     }
 
+                                    break;
+                                }
+                                case "CLIENT_LIST": {   // from status command
+                                    // CLIENT_LIST\tGIL7869\t50.218.86.210:52039\t10.10.0.172\t\t7327272\t78384567\t2023-01-02 10:35:29\t1672677329\tUNDEF\t31\t23\tAES-256-GCM
+                                }
+                                case "INFO": {
                                     break;
                                 }
                                 default: {
