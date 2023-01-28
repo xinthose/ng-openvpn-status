@@ -64,5 +64,7 @@
 
 - Using a Windows command prompt
   - enable Telnet Client in "Turn Windows features on or off" first
-  - `telnet 10.1.1.196 7505`  // IP address of server, management port
+  - `telnet`
+  - `set logfile C:\\Users\\adamd\\Downloads\\results.txt`  // out command responses to this text file for later review
+  - `open 10.1.1.196 7505`  // IP address of server, management port
   - enter your password (if used) when prompted
