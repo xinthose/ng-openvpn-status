@@ -59,3 +59,10 @@
 
 - `ERROR in The Angular Compiler requires TypeScript >=4.8.2 and <4.9.0 but 3.9.5 was found instead.`
   - `npm i typescript@">=4.8.2 < 4.9.0"`
+
+## Manually connect to OpenVPN server management interface over telnet
+
+- Using a Windows command prompt
+  - enable Telnet Client in "Turn Windows features on or off" first
+  - `telnet 10.1.1.196 7505`  // IP address of server, management port
+  - enter your password (if used) when prompted
