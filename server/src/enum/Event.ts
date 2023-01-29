@@ -6,4 +6,5 @@ export enum Event {
     SOCKET_TIMEOUT = "socket_timeout",
     // OpenVPN command responses
     BYTECOUNT_CLI = "bytecount_cli",
+    CLIENT_LIST = "client_list",
 };

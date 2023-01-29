@@ -3,6 +3,7 @@ import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 import { ServerIdIntf } from "./interfaces/ServerIdIntf";
 import { Event } from './enum/Event';
 import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
+import { WSstatusIntf } from "./interfaces/websocket/WSstatusIntf";
 
 // config
 import config from "./serverConfig.json";
@@ -11,6 +12,7 @@ import config from "./serverConfig.json";
 import winston from "winston";
 import { Socket, createConnection } from "net";
 import { EventEmitter } from "events";
+import { DateTime } from "luxon";
 
 export class OpenvpnServer {
     private logID: string = "OpenvpnServer";
@@ -186,7 +188,7 @@ export class OpenvpnServer {
 
                     // handle items
                     for (const item of items) {
-                        if (item.startsWith(">")) { // command response
+                        if (item.startsWith(">")) {
                             // get command and its response
                             const command: string = item.substring(item.indexOf(">"), item.indexOf(":"));
                             const commandResponse: string = item.substring(item.indexOf(":"));
@@ -214,9 +216,6 @@ export class OpenvpnServer {
 
                                     break;
                                 }
-                                case "CLIENT_LIST": {   // from status command
-                                    // CLIENT_LIST\tGIL7869\t50.218.86.210:52039\t10.10.0.172\t\t7327272\t78384567\t2023-01-02 10:35:29\t1672677329\tUNDEF\t31\t23\tAES-256-GCM
-                                }
                                 case "INFO": {
                                     break;
                                 }
@@ -225,6 +224,52 @@ export class OpenvpnServer {
                                     break;
                                 }
                             }
+                        } else if (item.indexOf("\t")) {
+                            // split item by its escapped tab character
+                            const sub_items: Array<string> = item.split("\t");
+                            const command: string = sub_items[0];
+
+                            // handle command
+                            switch (command) {
+                                case "CLIENT_LIST": {   // from status command
+                                    // CLIENT_LIST\tGIL7869\t50.218.86.210:52039\t10.10.0.172\t\t7327272\t78384567\t2023-01-02 10:35:29\t1672677329\tUNDEF\t31\t23\tAES-256-GCM
+
+                                    if (sub_items.length == 13) {
+                                        // get data
+                                        const connectedSince: Date = DateTime.fromFormat(sub_items[7], "yyyy-MM-dd hh:mm:ss").toJSDate();
+
+                                        // create data
+                                        const data: WSstatusIntf = {
+                                            "CommonName": sub_items[1],
+                                            "RealAddress": sub_items[2],
+                                            "VirtualAddress": sub_items[3],
+                                            "VirtualIPv6Address": sub_items[4],
+                                            "BytesReceived": Number(sub_items[5]),
+                                            "BytesSent": Number(sub_items[6]),
+                                            "ConnectedSince": connectedSince,
+                                            "ConnectedSinceEpoch": Number(sub_items[8]),
+                                            "Username": sub_items[9],
+                                            "ClientID": Number(sub_items[10]),
+                                            "PeerID": Number(sub_items[11]),
+                                            "DataChannelCipher": sub_items[12],
+                                        };
+
+                                        // emit event
+                                        this.eventEmitter.emit(Event.CLIENT_LIST, data);
+                                    } else {
+                                        this.logger.error(`${this.logID}setHandlers >> CLIENT_LIST array length is wrong >> sub_items.length = ${sub_items.length}`);
+                                    }
+
+                                    break;
+                                }
+                                default: {
+                                    this.logger.error(`${this.logID}setHandlers >> command unhandled >> command = ${command}`);
+                                    break;
+                                }
+                            }
+
+                        } else {
+                            this.logger.error(`${this.logID}setHandlers >> item unhandled >> item = ${item}`);
                         }
                     }
                 });
