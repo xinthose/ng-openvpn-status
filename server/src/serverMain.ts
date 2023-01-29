@@ -11,6 +11,7 @@ import { WinstonLogLevelsEnum } from "./enum/WinstonLogLevelsEnum";
 import { WSeventIntf } from './interfaces/websocket/WSeventIntf';
 import { Event } from './enum/Event';
 import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
+import { WSstatusIntf } from "./interfaces/websocket/WSstatusIntf";
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
@@ -148,12 +149,19 @@ export class OpenvpnServer {
                 }
                 ws.send(JSON.stringify(data));
             });
-            this.eventEmitter.on(Event.BYTECOUNT_CLI, (wsByteCount: WSbyteCountIntf) => {
-                const data: WSeventIntf = {
+            this.eventEmitter.on(Event.BYTECOUNT_CLI, (data: WSbyteCountIntf) => {
+                const sendData: WSeventIntf = {
                     "event": Event.BYTECOUNT_CLI,
-                    "message": wsByteCount,
+                    "message": data,
                 }
-                ws.send(JSON.stringify(data));
+                ws.send(JSON.stringify(sendData));
+            });
+            this.eventEmitter.on(Event.CLIENT_LIST, (data: WSstatusIntf) => {
+                const sendData: WSeventIntf = {
+                    "event": Event.CLIENT_LIST,
+                    "message": data,
+                }
+                ws.send(JSON.stringify(sendData));
             });
 
             // listen for events from clients

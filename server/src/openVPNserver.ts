@@ -212,6 +212,8 @@ export class OpenvpnServer {
 
                                         // emit event
                                         this.eventEmitter.emit(Event.BYTECOUNT_CLI, data);
+                                    } else {
+                                        this.logger.error(`${this.logID}setHandlers >> BYTECOUNT_CLI array length is wrong >> byteCountArr.length = ${byteCountArr.length}`);
                                     }
 
                                     break;
@@ -240,6 +242,7 @@ export class OpenvpnServer {
 
                                         // create data
                                         const data: WSstatusIntf = {
+                                            "serverID": this.openVPNserver.id,
                                             "CommonName": sub_items[1],
                                             "RealAddress": sub_items[2],
                                             "VirtualAddress": sub_items[3],
@@ -268,8 +271,6 @@ export class OpenvpnServer {
                                 }
                             }
 
-                        } else {
-                            this.logger.error(`${this.logID}setHandlers >> item unhandled >> item = ${item}`);
                         }
                     }
                 });

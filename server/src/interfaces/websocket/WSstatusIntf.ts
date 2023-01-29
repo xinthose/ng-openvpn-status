@@ -1,4 +1,5 @@
 export interface WSstatusIntf {
+	"serverID": number,
 	"CommonName": string,
 	"RealAddress": string,
 	"VirtualAddress": string,
