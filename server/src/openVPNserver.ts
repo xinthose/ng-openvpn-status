@@ -4,6 +4,8 @@ import { ServerIdIntf } from "./interfaces/ServerIdIntf";
 import { Event } from './enum/Event';
 import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
 import { WSstatusIntf } from "./interfaces/websocket/WSstatusIntf";
+import { WSroutingTableIntf } from "./interfaces/websocket/WSroutingTableIntf";
+import { WSserverTimeIntf } from "./interfaces/websocket/WSserverTimeIntf";
 
 // config
 import config from "./serverConfig.json";
@@ -263,6 +265,62 @@ export class OpenvpnServer {
                                         this.logger.error(`${this.logID}setHandlers >> CLIENT_LIST array length is wrong >> sub_items.length = ${sub_items.length}`);
                                     }
 
+                                    break;
+                                }
+                                case "ROUTING_TABLE": {   // from status command
+                                    // ROUTING_TABLE\t10.10.0.127\tGIL8165\t74.50.129.230:59399\t2023-02-05 03:26:20\t1675589180
+
+                                    if (sub_items.length == 6) {
+                                        // get data
+                                        const lastRef: Date = DateTime.fromFormat(sub_items[4], "yyyy-MM-dd hh:mm:ss").toJSDate();
+
+                                        // create data
+                                        const data: WSroutingTableIntf = {
+                                            "serverID": this.openVPNserver.id,
+                                            "VirtualAddress": sub_items[1],
+                                            "CommonName": sub_items[2],
+                                            "RealAddress": sub_items[3],
+                                            "LastRef": lastRef,
+                                            "LastRefEpoch": Number(sub_items[5]),
+                                        };
+
+                                        // emit event
+                                        this.eventEmitter.emit(Event.ROUTING_TABLE, data);
+                                    } else {
+                                        this.logger.error(`${this.logID}setHandlers >> ROUTING_TABLE array length is wrong >> sub_items.length = ${sub_items.length}`);
+                                    }
+
+                                    break;
+                                }
+                                case "TIME": {
+                                    // TIME\t2023-02-05 22:36:17\t1675658177
+
+                                    if (sub_items.length == 3) {
+                                        // get data
+                                        const serverTime: Date = DateTime.fromFormat(sub_items[1], "yyyy-MM-dd hh:mm:ss").toJSDate();
+
+                                        // create data
+                                        const data: WSserverTimeIntf = {
+                                            "serverID": this.openVPNserver.id,
+                                            "ServerTime": serverTime,
+                                            "ServerTimeEpoch": Number(sub_items[2]),
+                                        };
+
+                                        // emit event
+                                        this.eventEmitter.emit(Event.SERVER_TIME, data);
+                                    } else {
+                                        this.logger.error(`${this.logID}setHandlers >> ROUTING_TABLE array length is wrong >> sub_items.length = ${sub_items.length}`);
+                                    }
+
+                                    break;
+                                }
+                                case "TITLE": {
+                                    break;
+                                }
+                                case "HEADER": {
+                                    break;
+                                }
+                                case "GLOBAL_STATS": {
                                     break;
                                 }
                                 default: {

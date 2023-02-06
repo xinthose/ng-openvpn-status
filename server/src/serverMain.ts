@@ -12,6 +12,8 @@ import { WSeventIntf } from './interfaces/websocket/WSeventIntf';
 import { Event } from './enum/Event';
 import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
 import { WSstatusIntf } from "./interfaces/websocket/WSstatusIntf";
+import { WSroutingTableIntf } from "./interfaces/websocket/WSroutingTableIntf";
+import { WSserverTimeIntf } from "./interfaces/websocket/WSserverTimeIntf";
 
 // libraries
 import express, { Request, Response, NextFunction } from "express";
@@ -159,6 +161,20 @@ export class OpenvpnServer {
             this.eventEmitter.on(Event.CLIENT_LIST, (data: WSstatusIntf) => {
                 const sendData: WSeventIntf = {
                     "event": Event.CLIENT_LIST,
+                    "message": data,
+                }
+                ws.send(JSON.stringify(sendData));
+            });
+            this.eventEmitter.on(Event.ROUTING_TABLE, (data: WSroutingTableIntf) => {
+                const sendData: WSeventIntf = {
+                    "event": Event.ROUTING_TABLE,
+                    "message": data,
+                }
+                ws.send(JSON.stringify(sendData));
+            });
+            this.eventEmitter.on(Event.SERVER_TIME, (data: WSserverTimeIntf) => {
+                const sendData: WSeventIntf = {
+                    "event": Event.SERVER_TIME,
                     "message": data,
                 }
                 ws.send(JSON.stringify(sendData));
