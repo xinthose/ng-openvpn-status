@@ -202,7 +202,9 @@ export class OpenvpnServer {
                                                 // emit event
                                                 this.eventEmitter.emit(Event.BYTECOUNT_CLI, data);
                                             } else {
-                                                this.logger.error(`${this.logID}setHandlers >> BYTECOUNT_CLI array length is wrong >> byteCountArr.length = ${byteCountArr.length}; item = ${JSON.stringify(item)}`);
+                                                if (this.advDebug) {
+                                                    this.logger.error(`${this.logID}setHandlers >> BYTECOUNT_CLI array length is wrong >> byteCountArr.length = ${byteCountArr.length}; item = ${JSON.stringify(item)}`);
+                                                }
                                             }
 
                                             break;
@@ -211,7 +213,9 @@ export class OpenvpnServer {
                                             break;
                                         }
                                         default: {
-                                            this.logger.error(`${this.logID}setHandlers >> command unhandled (>) >> command = ${command}; item = ${JSON.stringify(item)}`);
+                                            if (this.advDebug) {
+                                                this.logger.error(`${this.logID}setHandlers >> command unhandled (>) >> command = ${command}; item = ${JSON.stringify(item)}`);
+                                            }
                                             break;
                                         }
                                     }
@@ -223,11 +227,19 @@ export class OpenvpnServer {
                                     // handle command
                                     switch (command) {
                                         case "ENTER PASSWORD:": {
+                                            if (this.debug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> ENTER PASSWORD`);
+                                            }
+
                                             // send password
                                             await this.writeSocket(`${this.openVPNserver.password}\r\n`);    // return and newline required to submit the password
                                             break;
                                         }
                                         case "SUCCESS: password is correct": {
+                                            if (this.debug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> SUCCESS: password is correct`);
+                                            }
+
                                             // request real-time notification of OpenVPN bandwidth usage every 5 seconds
                                             //await this.writeSocket("bytecount 5\r\n");
 
@@ -235,6 +247,9 @@ export class OpenvpnServer {
                                             break;
                                         }
                                         case "CLIENT_LIST": {   // from status command
+                                            if (this.debug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> CLIENT_LIST`);
+                                            }
                                             // CLIENT_LIST\tGIL7869\t50.218.86.210:52039\t10.10.0.172\t\t7327272\t78384567\t2023-01-02 10:35:29\t1672677329\tUNDEF\t31\t23\tAES-256-GCM
 
                                             if (sub_items.length == 13) {
@@ -261,13 +276,20 @@ export class OpenvpnServer {
                                                 // emit event
                                                 this.eventEmitter.emit(Event.CLIENT_LIST, data);
                                             } else {
-                                                this.logger.error(`${this.logID}setHandlers >> CLIENT_LIST array length is wrong >> sub_items.length = ${sub_items.length}; item = ${JSON.stringify(item)}`);
+                                                if (this.advDebug) {
+                                                    this.logger.error(`${this.logID}setHandlers >> CLIENT_LIST array length is wrong >> sub_items.length = ${sub_items.length}; item = ${JSON.stringify(item)}`);
+                                                }
                                             }
 
                                             break;
                                         }
                                         case "ROUTING_TABLE": {   // from status command
+                                            if (this.debug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> ROUTING_TABLE`);
+                                            }
+
                                             // ROUTING_TABLE\t10.10.0.127\tGIL8165\t74.50.129.230:59399\t2023-02-05 03:26:20\t1675589180
+                                            // \"ROUTING_TABLE\\t10.10.0.83\\tPAL8009\\t209.188.118.137:55484\\t2023-02-14 0\""
 
                                             if (sub_items.length == 6) {
                                                 // get data
@@ -286,12 +308,18 @@ export class OpenvpnServer {
                                                 // emit event
                                                 this.eventEmitter.emit(Event.ROUTING_TABLE, data);
                                             } else {
-                                                this.logger.error(`${this.logID}setHandlers >> ROUTING_TABLE array length is wrong >> sub_items.length = ${sub_items.length}; item = ${JSON.stringify(item)}`);
+                                                if (this.advDebug) {
+                                                    this.logger.error(`${this.logID}setHandlers >> ROUTING_TABLE array length is wrong >> sub_items.length = ${sub_items.length}; item = ${JSON.stringify(item)}`);
+                                                }
                                             }
 
                                             break;
                                         }
                                         case "TIME": {
+                                            if (this.debug) {
+                                                this.logger.debug(`${this.logID}setHandlers >>TIME`);
+                                            }
+
                                             // TIME\t2023-02-05 22:36:17\t1675658177
 
                                             if (sub_items.length == 3) {
@@ -308,7 +336,9 @@ export class OpenvpnServer {
                                                 // emit event
                                                 this.eventEmitter.emit(Event.SERVER_TIME, data);
                                             } else {
-                                                this.logger.error(`${this.logID}setHandlers >> TIME array length is wrong >> sub_items.length = ${sub_items.length}; item = ${JSON.stringify(item)}`);
+                                                if (this.advDebug) {
+                                                    this.logger.error(`${this.logID}setHandlers >> TIME array length is wrong >> sub_items.length = ${sub_items.length}; item = ${JSON.stringify(item)}`);
+                                                }
                                             }
 
                                             break;
@@ -326,17 +356,23 @@ export class OpenvpnServer {
                                             break;
                                         }
                                         default: {
-                                            this.logger.error(`${this.logID}setHandlers >> command unhandled (\t) >> command = ${command}; item = ${JSON.stringify(item)}`);
+                                            if (this.advDebug) {
+                                                this.logger.error(`${this.logID}setHandlers >> command unhandled (\t) >> command = ${command}; item = ${JSON.stringify(item)}`);
+                                            }
                                             break;
                                         }
                                     }
 
                                 } else {
-                                    this.logger.error(`${this.logID}setHandlers >> item unhandled >> item = ${JSON.stringify(item)}`);
+                                    if (this.advDebugvvvv) {
+                                        this.logger.error(`${this.logID}setHandlers >> item unhandled >> item = ${JSON.stringify(item)}`);
+                                    }
                                 }
                             }
                         } else {
-                            this.logger.error(`${this.logID}setHandlers >> items unhandled >> items = ${JSON.stringify(items)}`);
+                            if (this.advDebug) {
+                                this.logger.error(`${this.logID}setHandlers >> items unhandled >> items = ${JSON.stringify(items)}`);
+                            }
                         }
                     } catch (error) {
                         this.logger.error(`${this.logID}setHandlers >> data >> error = ${error}`);
