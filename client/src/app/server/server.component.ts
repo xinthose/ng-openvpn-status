@@ -72,6 +72,8 @@ export class ServerComponent implements OnInit {
       // navigate
       this.router.navigate(["home"]);
     }
+
+
   }
 
   async ngOnInit() {
@@ -84,9 +86,6 @@ export class ServerComponent implements OnInit {
       if (this.serverID) {
         // get OpenVPN server from ID
         await this.getOpenvpnServer(this.serverID);
-
-        // get clients connected to server
-        await this.getStatus(this.serverID);
       }
     } catch (error: any) {
       this.clientsLoading = false;
@@ -138,27 +137,6 @@ export class ServerComponent implements OnInit {
     } catch (error: any) {
       this.clientsLoading = false;
       this.logger.error(`${this.logID}getConfig >> error = ${error}`);
-      this.notificationService.show({
-        content: error.toString(),
-        closable: true,
-        cssClass: "notification",
-        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
-        type: { style: "error", icon: false },  // none, success, error, warning, info
-        hideAfter: 5000,  // milliseconds
-        animation: {
-          type: "fade",
-          duration: 150, // milliseconds (notif)
-        },
-      });
-    }
-  }
-
-  async getStatus(id: number) {
-    try {
-      // tell server to send us a status
-      await this.serverService.getStatus(id);
-    } catch (error: any) {
-      this.logger.error(`${this.logID}getStatus >> error = ${error}`);
       this.notificationService.show({
         content: error.toString(),
         closable: true,
