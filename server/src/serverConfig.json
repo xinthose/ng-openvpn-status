@@ -4,6 +4,7 @@
   "advDebug": false,
   "localhostTesting": true,
   "port": 8090,
+  "getStatusInterval": 5000,
   "users": [
     {
       "username": "admin",

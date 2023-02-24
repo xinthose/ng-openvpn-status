@@ -21,19 +21,23 @@
 - `autoLogin`: automatically login on the login page, using the default username/password of admin/admin
 - `inactivityLogoutTime`: time in milliseconds you want an inactive user to be logged out after
 - `appTitle`: title of the app as seen in the browser tab and navbar
+- `serverPort`: port used for HTTP and websocket communication to the Node.js express app; must match `port` in `serverConfig.json`
 
 ### `server/src/serverConfig.json`
 
-- users
-  - create multiple users by copying and pasting the format of the current login, adding commas between new entries (last element does not have a comma after it though)
-    - make sure `username` is unique between entries
-  - it is recommended to change the default username/password from admin/admin for added security
+- `debug`: enable general debug information
+- `advDebug`: log as much information as possible, will fill up log files quickly
+- `port`: port used for HTTP and websocket communication to the web client(s); match `port` in `config.json`
+- `users`: an array of users who can login to the web application
+  - create multiple users by copying and pasting the format of the current login, adding commas between new entries (last element should not have a comma after it)
+  - make sure `username` is unique between entries
+  - change the default username/password from admin/admin for added security
 - `jsonWebToken`
-  - `secret`: for added security, generate your own secret, different from the default one:
+  - `secret`: for added security, generate your own secret, different from the default one; follow these steps to do so:
     - change directories to `utility` using the Node.js Command Prompt
     - `node genkey.js`
     - use this new value for this parameter
-  - `expireMinutes`: use any of the string formats used by `ms`: <https://github.com/vercel/ms/blob/master/src/index.ts#L9>
+  - `expireMinutes`: use any of the string formats used by `ms` here: <https://github.com/vercel/ms/blob/master/src/index.ts#L9>
 
 ### `server/src/openVPNservers.yaml`
 

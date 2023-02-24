@@ -27,6 +27,7 @@ export class OpenvpnServer {
     private reconnectTime: number = 10 * 1000;  // milliseconds
     // timeouts
     private reconnectTimeout!: NodeJS.Timeout;
+    private getStatusInterval!: NodeJS.Timer;
 
     constructor(logger: winston.Logger, eventEmitter: EventEmitter, openVPNserver: OpenVPNserversIntf) {
         // set data
@@ -46,7 +47,7 @@ export class OpenvpnServer {
             try {
                 if (this.socket) {
                     this.socket.write(data, () => {
-                        if (this.debug) {
+                        if (this.advDebug) {
                             this.logger.debug(`${this.logID}writeSocket >> data successfully written; data = ${data}`);
                         }
                         resolve();
@@ -93,6 +94,9 @@ export class OpenvpnServer {
                 this.socket.removeAllListeners();
             }
 
+            // clear get status interval
+            clearInterval(this.getStatusInterval);
+
             await this.endSocket();
 
             this.connect();
@@ -123,6 +127,11 @@ export class OpenvpnServer {
                 this.socket.once("connect", async () => {
                     // log
                     this.logger.info(`${this.logID}setHandlers >> connected`);
+
+                    if (this.socket) {
+                        this.logger.info(`${this.logID}setHandlers >> keep alive set`);
+                        this.socket.setKeepAlive(true);
+                    }
                 });
 
                 this.socket.once("close", (hadError: boolean) => {
@@ -185,6 +194,9 @@ export class OpenvpnServer {
                                     // handle command
                                     switch (command) {
                                         case "BYTECOUNT_CLI": { // from bytecount command
+                                            if (this.debug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> BYTECOUNT_CLI >> received`);
+                                            }
                                             // >BYTECOUNT_CLI:85,7222360,77293927
 
                                             // split string 
@@ -228,7 +240,7 @@ export class OpenvpnServer {
                                     switch (command) {
                                         case "ENTER PASSWORD:": {
                                             if (this.debug) {
-                                                this.logger.debug(`${this.logID}setHandlers >> ENTER PASSWORD`);
+                                                this.logger.debug(`${this.logID}setHandlers >> ENTER PASSWORD >> received`);
                                             }
 
                                             // send password
@@ -237,18 +249,24 @@ export class OpenvpnServer {
                                         }
                                         case "SUCCESS: password is correct": {
                                             if (this.debug) {
-                                                this.logger.debug(`${this.logID}setHandlers >> SUCCESS: password is correct`);
+                                                this.logger.debug(`${this.logID}setHandlers >> SUCCESS: password is correct >> received`);
                                             }
 
                                             // request real-time notification of OpenVPN bandwidth usage every 5 seconds
                                             //await this.writeSocket("bytecount 5\r\n");
 
-                                            await this.writeSocket("status 3\r\n");
+                                            this.getStatusInterval = setInterval(() => {
+                                                if (this.debug) {
+                                                    this.logger.debug(`${this.logID}setHandlers >> getStatusInterval >> running`);
+                                                }
+
+                                                this.writeSocket("status 3\r\n");
+                                            }, config.getStatusInterval);
                                             break;
                                         }
                                         case "CLIENT_LIST": {   // from status command
-                                            if (this.debug) {
-                                                this.logger.debug(`${this.logID}setHandlers >> CLIENT_LIST`);
+                                            if (this.advDebug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> CLIENT_LIST >> received`);
                                             }
                                             // CLIENT_LIST\tGIL7869\t50.218.86.210:52039\t10.10.0.172\t\t7327272\t78384567\t2023-01-02 10:35:29\t1672677329\tUNDEF\t31\t23\tAES-256-GCM
 
@@ -284,8 +302,8 @@ export class OpenvpnServer {
                                             break;
                                         }
                                         case "ROUTING_TABLE": {   // from status command
-                                            if (this.debug) {
-                                                this.logger.debug(`${this.logID}setHandlers >> ROUTING_TABLE`);
+                                            if (this.advDebug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> ROUTING_TABLE >> received`);
                                             }
 
                                             // ROUTING_TABLE\t10.10.0.127\tGIL8165\t74.50.129.230:59399\t2023-02-05 03:26:20\t1675589180
@@ -316,8 +334,8 @@ export class OpenvpnServer {
                                             break;
                                         }
                                         case "TIME": {
-                                            if (this.debug) {
-                                                this.logger.debug(`${this.logID}setHandlers >>TIME`);
+                                            if (this.advDebug) {
+                                                this.logger.debug(`${this.logID}setHandlers >> TIME >> received`);
                                             }
 
                                             // TIME\t2023-02-05 22:36:17\t1675658177
@@ -364,7 +382,7 @@ export class OpenvpnServer {
                                     }
 
                                 } else {
-                                    if (this.advDebugvvvv) {
+                                    if (this.advDebug) {
                                         this.logger.error(`${this.logID}setHandlers >> item unhandled >> item = ${JSON.stringify(item)}`);
                                     }
                                 }
