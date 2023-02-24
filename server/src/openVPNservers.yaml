@@ -3,4 +3,4 @@
   host: 10.1.1.196
   port: 7505
   password: Wk60Rk3rtb2WOvE
-  timeout: 5000
+  timeout: 60000

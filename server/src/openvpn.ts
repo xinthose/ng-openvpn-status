@@ -34,7 +34,6 @@ export class Openvpn {
         // set routes
         this.router.get("/getConfig", [this.getConfig.bind(this)]);
         this.router.post("/updateConfig", [this.updateConfig.bind(this)]);
-        this.router.post("/getStatus", [this.getStatus.bind(this)]);
 
         // connect to servers
         this.connect();
@@ -103,26 +102,6 @@ export class Openvpn {
             res.status(200).json({ "message": "OK" });
         } catch (error: any) {
             this.logger.error(`${this.logID}updateConfig >> error = ${error}`);
-            res.status(500).send(error);
-        }
-    }
-
-    private async getStatus(req: Request, res: Response) {
-        try {
-            // get data
-            const body: ServerIdIntf = req.body;
-            if (this.debug) {
-                this.logger.debug(`${this.logID}getStatus >> body = ${JSON.stringify(body)}`);
-            }
-            const id: number = body.id;
-
-            // send command
-            await this.openvpnServers[id].writeSocket("status 3\r\n"); // Show status information using the format of --status - version 3
-
-            // return OK
-            res.status(200).json({ "message": "OK" });
-        } catch (error: any) {
-            this.logger.error(`${this.logID}getStatus >> error = ${error}`);
             res.status(500).send(error);
         }
     }

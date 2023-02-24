@@ -49,7 +49,7 @@
   host: 127.0.0.1
   port: 7505
   password:
-  timeout: 5000
+  timeout: 60000
 - id: 2...
 ```
 
@@ -58,7 +58,7 @@
 - `host`: string >> IP address of the computer running the OpenVPN server, use `127.0.0.1` if this application is installed on the same computer as the OpenVPN server
 - `port`: number (1-65535) >> port of the management interface set in the OpenVPN server's configuration file
 - `password`: string >> leave this blank if a password file is not being used in the OpenVPN server's configuration file; if a password file is being used, this parameter will have the same value as its contents
-- `timeout`: number >> amount of time in milliseconds before the management socket times out after inactivity
+- `timeout`: number >> amount of time in milliseconds before the management socket times out; if you have a lot of clients (100+) make this value at least 60000 (60 seconds) to avoid socket timeout errors
 
 ## Updating to New Version
 

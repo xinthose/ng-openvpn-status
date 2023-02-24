@@ -129,7 +129,6 @@ export class OpenvpnServer {
                     this.logger.info(`${this.logID}setHandlers >> connected`);
 
                     if (this.socket) {
-                        this.logger.info(`${this.logID}setHandlers >> keep alive set`);
                         this.socket.setKeepAlive(true);
                     }
                 });
@@ -256,7 +255,7 @@ export class OpenvpnServer {
                                             //await this.writeSocket("bytecount 5\r\n");
 
                                             this.getStatusInterval = setInterval(() => {
-                                                if (this.debug) {
+                                                if (this.advDebug) {
                                                     this.logger.debug(`${this.logID}setHandlers >> getStatusInterval >> running`);
                                                 }
 
