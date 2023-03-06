@@ -241,6 +241,8 @@ export class SocketService {
   public event = Event;
 
   // event emitters
+  @Output() wsClosed: EventEmitter<boolean> = new EventEmitter();
+  @Output() wsError: EventEmitter<boolean> = new EventEmitter();
   @Output() socketShutdown: EventEmitter<boolean> = new EventEmitter();
   @Output() clientList: EventEmitter<WSstatusIntf> = new EventEmitter();
 
@@ -320,11 +322,7 @@ export class SocketService {
     this.socket.unsubscribe();
   }
 
-  public sendEvent(event: Events, data?: Object): void {
-    if (this.config.designerTesting) {
-      return;
-    }
-
+  public sendEvent(event: Event, data?: Object): void {
     if (this.debug) {
       this.logger.debug(`${this.logID}sendEvent >> event = ${event}; data = ${JSON.stringify(data)}`);
     }
