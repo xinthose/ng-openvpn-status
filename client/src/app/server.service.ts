@@ -14,6 +14,13 @@ import { retry, RetryConfig, catchError } from "rxjs/operators";
 import { LoginStatusIntf } from './interfaces/LoginStatusIntf';
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";
 import { ServerIdIntf } from "./interfaces/ServerIdIntf";
+import { WSbyteCountIntf } from "./interfaces/websocket/WSbyteCountIntf";
+import { WSstatusIntf } from "./interfaces/websocket/WSstatusIntf";
+import { WSroutingTableIntf } from "./interfaces/websocket/WSroutingTableIntf";
+import { WSserverTimeIntf } from "./interfaces/websocket/WSserverTimeIntf";
+
+// enum
+import { Event } from './enum/Event';
 
 // Other
 import { environment } from '../environments/environment';
@@ -234,9 +241,8 @@ export class SocketService {
   public event = Event;
 
   // event emitters
-  @Output() wsClosed: EventEmitter<boolean> = new EventEmitter();
-  @Output() wsError: EventEmitter<boolean> = new EventEmitter();
-  @Output() stationClosed: EventEmitter<boolean> = new EventEmitter();
+  @Output() socketShutdown: EventEmitter<boolean> = new EventEmitter();
+  @Output() clientList: EventEmitter<WSstatusIntf> = new EventEmitter();
 
   constructor(
     private notificationService: NotificationService,
@@ -272,7 +278,7 @@ export class SocketService {
         this.logger.error(`${this.logID}connect >> websocket error; error = ${err}`);
         this.notificationService.show({
           content: "Websocket error.",
-          cssClass: this.config.tenInchScreenUsed ? "notificationTenInchScreen" : "notificationFiveInchScreen",
+          cssClass: "customNotification",
           position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
           type: { style: "error", icon: false },  // none, success, error, warning, info
           hideAfter: 2000,  // milliseconds
@@ -295,78 +301,12 @@ export class SocketService {
     }
 
     switch (event) {
-      case Events.STATION_CLOSED: {
-        this.stationClosed.emit(true);
+      case Event.SOCKET_SHUTDOWN: {
+        this.socketShutdown.emit(true);
         break;
       }
-      case Events.STATION_OPEN: {
-        this.stationClosed.emit(false);
-        break;
-      }
-      case Events.STATION_FAULT: {
-        this.stationFault.emit({
-          stationFault: true,
-          fault: msg.data
-        });
-        break;
-      }
-      case Events.STATION_FAULT_CLEARED: {
-        this.stationFault.emit({
-          stationFault: false,
-          fault: msg.data
-        });
-        break;
-      }
-      case Events.STATION_RECOVERED: {
-        this.stationRecovered.emit(true);
-        break;
-      }
-      case Events.FLOW_UPDATED: {
-        this.flowUpdated.emit(msg.data);
-        break;
-      }
-      case Events.TRANSACTION_COMPLETE: {
-        this.transComplete.emit(true);
-        break;
-      }
-      case Events.FILL_POINT_1_COMPLETE: {
-        this.fillPoint1Complete.emit(true);
-        break;
-      }
-      case Events.FILL_POINT_2_COMPLETE: {
-        this.fillPoint2Complete.emit(true);
-        break;
-      }
-      case Events.CARD_SCANNED: {
-        this.cardScanned.emit(msg.data);
-        break;
-      }
-      case Events.NO_FLOW_LOGOFF: {
-        this.noFLowLogOff.emit(true);
-        break;
-      }
-      case Events.TRANSACTION_TIME_LIMIT: {
-        this.transTimeLimit.emit(true);
-        break;
-      }
-      case Events.LOW_PH: {
-        this.lowPh.emit(true);
-        break;
-      }
-      case Events.HIGH_PH: {
-        this.highPh.emit(true);
-        break;
-      }
-      case Events.SCALE_READ_ERROR: {
-        this.scaleReadError.emit(true);
-        break;
-      }
-      case Events.SCALE_READ_OK: {
-        this.scaleReadOK.emit(msg.data);
-        break;
-      }
-      case Events.WATER_STOP_PRESSED: {
-        this.waterStopPressed.emit();
+      case Event.CLIENT_LIST: {
+        this.clientList.emit(msg.data);
         break;
       }
       default: {
