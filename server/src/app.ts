@@ -1,4 +1,4 @@
-import { OpenvpnServer } from './serverMain';
+import { Main } from './main';
 
-let app = new OpenvpnServer().getApp();
+let app = new Main().getApp();
 export { app };

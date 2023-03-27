@@ -1,5 +1,5 @@
 // classes
-import { OpenvpnServer } from "./OpenvpnServer";
+import { OpenvpnServer } from "./openVPNserver";
 
 // interfaces
 import { OpenVPNserversIntf } from "./interfaces/OpenVPNserversIntf";

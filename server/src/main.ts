@@ -25,8 +25,8 @@ import * as WebSocket from 'ws';
 import * as http from "http";
 import { EventEmitter } from "events";
 
-export class OpenvpnServer {
-    private logID: string = "OpenvpnServer.";
+export class Main {
+    private logID: string = "Main.";
     private debug: boolean = config.debug;
     private advDebug: boolean = config.advDebug;
     private app: express.Application;
