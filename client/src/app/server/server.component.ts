@@ -29,7 +29,7 @@ import config from "../../assets/config.json";
 export class ServerComponent implements OnInit {
   private debug: boolean = config.debug;
   private logID: string = "ServerComponent.";
-  private serverID: number | undefined;
+  private serverID: number | undefined = undefined;
   public clientsLoading: boolean = false;
   public openvpnServer: OpenVPNserversIntf | undefined = undefined;
   // clients grid
@@ -54,8 +54,12 @@ export class ServerComponent implements OnInit {
     private route: ActivatedRoute,
   ) {
     // get server ID from route
-    this.serverID = Number(this.route.snapshot.params.id) || undefined;
-    if (!this.serverID) {
+    this.serverID = Number(this.route.snapshot.params.id);
+    if (this.debug) {
+      this.logger.debug(`${this.logID}constructor >> serverID = ${this.serverID}`);
+    }
+
+    if (this.serverID == null) {
       // show popup
       this.notificationService.show({
         content: "ID not found.",
@@ -83,7 +87,7 @@ export class ServerComponent implements OnInit {
         this.authService.serverSelectedEvent.emit();
       });
 
-      if (this.serverID) {
+      if (this.serverID != undefined) {
         // get OpenVPN server from ID
         await this.getOpenvpnServer(this.serverID);
       }
@@ -113,30 +117,20 @@ export class ServerComponent implements OnInit {
       // get servers from YAML config file
       const openvpnServers: Array<OpenVPNserversIntf> = await this.serverService.getConfig();
       if (this.debug) {
-        this.logger.debug(`${this.logID}getConfig >> openvpnServers = ${JSON.stringify(openvpnServers)}`);
+        this.logger.debug(`${this.logID}getOpenvpnServer >> openvpnServers = ${JSON.stringify(openvpnServers)}`);
       }
 
       // get server by ID
       this.openvpnServer = openvpnServers.find(openvpnServer => openvpnServer.id === id);
-
-      // show popup
-      this.notificationService.show({
-        content: "Data refreshed.",
-        cssClass: "notification",
-        position: { horizontal: "center", vertical: "top" },  // left/center/right, top/bottom
-        type: { style: "success", icon: false },  // none, success, error, warning, info
-        hideAfter: 2000,  // milliseconds
-        animation: {
-          type: "fade",
-          duration: 150, // milliseconds (notif)
-        },
-      });
+      if (this.debug) {
+        this.logger.debug(`${this.logID}getOpenvpnServer >> openvpnServer = ${JSON.stringify(this.openvpnServer)}`);
+      }
 
       // hide loading icon
       this.clientsLoading = false;
     } catch (error: any) {
       this.clientsLoading = false;
-      this.logger.error(`${this.logID}getConfig >> error = ${error}`);
+      this.logger.error(`${this.logID}getOpenvpnServer >> error = ${error}`);
       this.notificationService.show({
         content: error.toString(),
         closable: true,

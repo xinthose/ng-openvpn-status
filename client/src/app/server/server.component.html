@@ -12,36 +12,29 @@
   <div class="row justify-content-center mb-3">
     <!-- OpenVPN Servers -->
     <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title">
-            <div kendoTooltip filter="fa-icon">
-              {{ openvpnServer?.name }}
-            </div>
-          </h4>
-          <div class="card-text">
-            <div class="row mt-2 justify-content-center">
-              <kendo-grid [data]="clientsGridData" [height]="300" [sortable]="true" [sort]="clientsGridSort"
-                [filterable]="true" [loading]="clientsLoading" (remove)="disconnectClient($event)">
-                <!-- Columns -->
-                <kendo-grid-column field="name" title="Name" filter="text" [width]="200"> </kendo-grid-column>
-                <kendo-grid-column field="openvpnIpAddress" title="VPN IP" filter="text" [width]="150">
-                </kendo-grid-column>
-                <kendo-grid-column field="publicIpAddress" title="Public IP" filter="text" [width]="120"
-                  format="{0:n0}">
-                </kendo-grid-column>
-                <kendo-grid-column field="connected" title="Password" filter="date" [width]="200">
-                </kendo-grid-column>
-                <kendo-grid-command-column title="Command" [width]="220">
-                  <ng-template kendoGridCellTemplate>
-                    <button kendoGridRemoveCommand themeColor="primary">Disconnect</button>
-                  </ng-template>
-                </kendo-grid-command-column>
-              </kendo-grid>
-            </div>
-          </div>
-        </div>
-      </div>
+      <kendo-grid [data]="clientsGridData" [height]="300" [sortable]="true" [sort]="clientsGridSort" [filterable]="true"
+        [loading]="clientsLoading" (remove)="disconnectClient($event)">
+        <ng-template kendoGridToolbarTemplate>
+          <kendo-grid-spacer></kendo-grid-spacer>
+          <h4>{{ openvpnServer?.name }}</h4>
+          <kendo-grid-spacer></kendo-grid-spacer>
+          <button kendoGridPDFCommand icon="file-pdf">Export to PDF</button>
+          <button kendoGridExcelCommand icon="file-excel">Export to Excel</button>
+        </ng-template>
+        <!-- Columns -->
+        <kendo-grid-column field="name" title="Name" filter="text" [width]="200"> </kendo-grid-column>
+        <kendo-grid-column field="openvpnIpAddress" title="VPN IP" filter="text" [width]="150">
+        </kendo-grid-column>
+        <kendo-grid-column field="publicIpAddress" title="Public IP" filter="text" [width]="120" format="{0:n0}">
+        </kendo-grid-column>
+        <kendo-grid-column field="connected" title="Password" filter="date" [width]="200">
+        </kendo-grid-column>
+        <kendo-grid-command-column title="Command" [width]="220">
+          <ng-template kendoGridCellTemplate>
+            <button kendoGridRemoveCommand themeColor="primary">Disconnect</button>
+          </ng-template>
+        </kendo-grid-command-column>
+      </kendo-grid>
     </div>
   </div>
 </main>

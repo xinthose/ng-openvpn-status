@@ -58,7 +58,7 @@
 ## Troubleshooting
 
 - `ERROR in The Angular Compiler requires TypeScript >=4.8.2 and <4.9.0 but 3.9.5 was found instead.`
-  - `npm i typescript@">=4.8.2 < 4.9.0"`
+  - `npm i typescript@">=4.8.2 < 5.0.0"`
 
 ## Manually connect to OpenVPN server management interface over telnet
 
