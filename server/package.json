@@ -16,6 +16,7 @@
     "@types/gulp-nodemon": "^0.0.34",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/luxon": "^3.2.0",
+    "@types/node": "^18.15.10",
     "@types/winston-loggly-bulk": "^3.0.3",
     "@types/ws": "^8.5.4",
     "compression": "^1.7.4",
