@@ -18,7 +18,7 @@ import { NotificationModule } from '@progress/kendo-angular-notification';
 import { RippleModule } from '@progress/kendo-angular-ripple';
 import { PopupModule } from '@progress/kendo-angular-popup';
 import { IndicatorsModule } from '@progress/kendo-angular-indicators';
-import { GridModule } from '@progress/kendo-angular-grid';
+import { GridModule, PDFModule, ExcelModule } from '@progress/kendo-angular-grid';
 
 // MDBootstrap
 import { MdbCollapseModule } from "mdb-angular-ui-kit/collapse";
@@ -75,6 +75,8 @@ import { ServerComponent } from './server/server.component';
     IndicatorsModule,
     DialogsModule,
     GridModule,
+    PDFModule,
+    ExcelModule,
     // MDBootstrap
     MdbCollapseModule,
     MdbDropdownModule,
